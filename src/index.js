@@ -33,6 +33,7 @@ app.use('/api/auth',    require('./routes/auth'));
 app.use('/api/users',   require('./routes/users'));
 app.use('/api/content', require('./routes/content'));
 app.use('/api/scores',  require('./routes/scores'));
+app.use('/api/upload',  require('./routes/upload'));
 
 /* ── Health check ── */
 app.get('/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
