@@ -17,7 +17,7 @@ router.post('/', authMw, async (req, res) => {
     .eq('student_id', student_id)
     .eq('lesson_id', lesson_id);
 
-  const { data, error } = await supabase.from('scores').insert([{
+  const record = {
     student_id, student_name,
     lesson_id:    lesson_id    || null,
     lesson_title: lesson_title || 'Bài học',
@@ -26,9 +26,25 @@ router.post('/', authMw, async (req, res) => {
     total:   total   || 5,
     pct,
     retry_count: (count || 0) + 1
-  }]).select().single();
+  };
 
-  if (error) return res.status(500).json({ error: error.message });
+  // Thử lưu với lesson_id trước
+  let { data, error } = await supabase.from('scores').insert([record]).select().single();
+
+  // Nếu lỗi foreign key (lesson_id không tồn tại trong bảng items) → retry với null
+  if (error && (error.code === '23503' || (error.message && error.message.includes('foreign key')))) {
+    console.warn('[scores] lesson_id foreign key error, retrying with null:', lesson_id);
+    const retry = await supabase.from('scores')
+      .insert([{ ...record, lesson_id: null }])
+      .select().single();
+    data  = retry.data;
+    error = retry.error;
+  }
+
+  if (error) {
+    console.error('[scores] insert error:', error);
+    return res.status(500).json({ error: error.message });
+  }
   res.json(data);
 });
 
