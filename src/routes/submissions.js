@@ -374,13 +374,20 @@ router.get('/simple', authMw, async (req, res) => {
 
   const { data, error } = await supabase
     .from('code_submissions')
-    .select('id, student_name, language, source_code, error_msg, submitted_at')
-    .is('problem_id', null)
+    .select('id, student_name, language, source_code, error_msg, submitted_at, status')
+    .eq('status', 'pending')
     .order('submitted_at', { ascending: false })
     .limit(200);
 
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data || []);
+
+  // Map error_msg → item_title để frontend dùng được
+  const mapped = (data || []).map(s => ({
+    ...s,
+    item_title: s.error_msg ? s.error_msg.replace(/^Bài: /, '') : '—'
+  }));
+
+  res.json(mapped);
 });
 
 module.exports = router;
