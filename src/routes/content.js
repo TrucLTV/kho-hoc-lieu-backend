@@ -87,7 +87,7 @@ router.post('/', authMw, async (req, res) => {
       const keepIds = allFiles.map(f => f.id);
       if (keepIds.length > 0) {
         await supabase.from('files')
-          .delete().eq('item_id', item.id).not('id', 'in', `(${keepIds.join(',')})`);
+          .delete().eq('item_id', item.id).not('id', 'in', `(${keepIds.map(id => `"${id}"`).join(',')})`);
       } else {
         await supabase.from('files').delete().eq('item_id', item.id);
       }
@@ -97,7 +97,7 @@ router.post('/', authMw, async (req, res) => {
     const keepItemIds = (sec.items || []).map(i => i.id);
     if (keepItemIds.length > 0) {
       await supabase.from('items')
-        .delete().eq('section_id', sec.id).not('id', 'in', `(${keepItemIds.join(',')})`);
+        .delete().eq('section_id', sec.id).not('id', 'in', `(${keepItemIds.map(id => `"${id}"`).join(',')})`);
     } else {
       await supabase.from('items').delete().eq('section_id', sec.id);
     }
@@ -106,7 +106,7 @@ router.post('/', authMw, async (req, res) => {
   // Xóa sections không còn tồn tại
   const keepSecIds = sections.map(s => s.id);
   if (keepSecIds.length > 0) {
-    await supabase.from('sections').delete().not('id', 'in', `(${keepSecIds.join(',')})`);
+    await supabase.from('sections').delete().not('id', 'in', `(${keepSecIds.map(id => `"${id}"`).join(',')})`);
   } else {
     await supabase.from('sections').delete().neq('id', '');
   }

@@ -6,7 +6,6 @@ const app     = express();
 /* ── CORS: cho phép frontend gọi API ── */
 app.use(cors({
   origin: function(origin, cb) {
-    // Cho phép: không có origin (Postman), localhost, và FRONTEND_URL
     const allowed = [
       process.env.FRONTEND_URL,
       'http://localhost:5500',
@@ -17,7 +16,6 @@ app.use(cors({
     if (!origin || allowed.some(u => origin.startsWith(u.replace(/\/$/, ''))))
       return cb(null, true);
 
-    // Cho phép GitHub Pages (*.github.io)
     if (origin && origin.endsWith('.github.io'))
       return cb(null, true);
 
@@ -26,14 +24,16 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '50mb' })); // cần thiết để upload file base64
+app.use(express.json({ limit: '50mb' }));
 
 /* ── Routes ── */
-app.use('/api/auth',    require('./routes/auth'));
-app.use('/api/users',   require('./routes/users'));
-app.use('/api/content', require('./routes/content'));
-app.use('/api/scores',  require('./routes/scores'));
-app.use('/api/upload',  require('./routes/upload'));
+app.use('/api/auth',        require('./routes/auth'));
+app.use('/api/users',       require('./routes/users'));
+app.use('/api/content',     require('./routes/content'));
+app.use('/api/scores',      require('./routes/scores'));
+app.use('/api/upload',      require('./routes/upload'));
+app.use('/api/problems',    require('./routes/problems'));      // 🆕 Bài tập lập trình
+app.use('/api/submissions', require('./routes/submissions'));   // 🆕 Nộp & chấm bài
 
 /* ── Health check ── */
 app.get('/health', (_, res) => res.json({ status: 'ok', time: new Date().toISOString() }));

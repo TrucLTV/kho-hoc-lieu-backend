@@ -58,12 +58,14 @@ router.post('/register', async (req, res) => {
   res.json({ message: 'Đăng ký thành công! Chờ giáo viên duyệt tài khoản.' });
 });
 
-/* ── POST /api/auth/change-password ── đổi mật khẩu admin */
+/* ── POST /api/auth/change-password ── đổi mật khẩu (admin & học sinh) */
 router.post('/change-password', authMw, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Chỉ admin mới được đổi mật khẩu' });
-
   const { old_password, new_password } = req.body;
+  if (!old_password || !new_password)
+    return res.status(400).json({ error: 'Vui lòng nhập mật khẩu cũ và mật khẩu mới' });
+  if (new_password.length < 4)
+    return res.status(400).json({ error: 'Mật khẩu mới tối thiểu 4 ký tự' });
+
   const { data: user } = await supabase
     .from('users').select('*').eq('id', req.user.id).single();
 
