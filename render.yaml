@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: kho-hoc-lieu-backend
+    env: node
+    buildCommand: apt-get install -y gcc g++ && npm install
+    startCommand: node src/index.js
