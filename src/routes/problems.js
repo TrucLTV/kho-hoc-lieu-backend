@@ -13,14 +13,11 @@ router.get('/', authMw, async (req, res) => {
   const { item_id } = req.query;
   if (!item_id) return res.status(400).json({ error: 'Thiếu item_id' });
 
-  // Thử cả string lẫn number để tránh lỗi type mismatch với DB
   const { data: problems, error } = await supabase
     .from('coding_problems')
     .select('id, title, description, input_format, output_format, constraints, example_input, example_output, time_limit_ms, memory_limit_mb, allowed_languages, created_at')
     .eq('item_id', item_id)
     .order('created_at', { ascending: true });
-
-  console.log(`[problems] GET /?item_id=${item_id} → ${problems?.length ?? 'null'} kết quả`, error?.message || '');
 
   if (error) return res.status(500).json({ error: error.message });
 
@@ -55,15 +52,17 @@ router.get('/:id', authMw, async (req, res) => {
 
   // Admin xem được tất cả testcase; học sinh chỉ thấy sample
   const isAdmin = req.user.role === 'admin';
-  const tcQuery = supabase
+  let tcQuery = supabase
     .from('testcases')
     .select('id, input, expected, is_sample, score_weight, position')
     .eq('problem_id', id)
     .order('position');
 
-  if (!isAdmin) tcQuery.eq('is_sample', true);
+  // Supabase query builder la immutable - phai gan lai bien
+  if (!isAdmin) tcQuery = tcQuery.eq('is_sample', true);
 
-  const { data: testcases } = await tcQuery;
+  const { data: testcases, error: tcErr } = await tcQuery;
+  if (tcErr) console.error('[problems] Loi tai testcase:', tcErr.message);
   prob.testcases = testcases || [];
 
   res.json(prob);
