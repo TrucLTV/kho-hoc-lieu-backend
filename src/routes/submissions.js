@@ -8,6 +8,11 @@ const vm           = require('vm');
 const fs           = require('fs');
 const path         = require('path');
 const os           = require('os');
+const { exec } = require('child_process');
+
+exec('g++ --version', (err, stdout, stderr) => {
+  console.log('g++ check:', stdout || stderr || err?.message);
+});
 const router       = express.Router();
 
 // ─────────────────────────────────────────────────────────
