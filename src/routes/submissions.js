@@ -148,6 +148,7 @@ function runCompiledCpp(code, input, timeoutMs) {
 // Học sinh nộp bài – chấm ngay (sync)
 // ─────────────────────────────────────────────────────────
 router.post('/', authMw, async (req, res) => {
+  console.log('📥 Nhận submission:', { problem_id: req.body.problem_id, language: req.body.language });
   const { problem_id, language, source_code } = req.body;
 
   if (!problem_id || !language || !source_code)
