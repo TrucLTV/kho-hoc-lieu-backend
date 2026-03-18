@@ -106,8 +106,9 @@ function runExternalProcess(interpreter, code, input, timeoutMs, ext) {
 // ── Compile + chạy C ──
 function runCompiledC(code, input, timeoutMs) {
   const tmpDir  = os.tmpdir();
-  const srcFile = path.join(tmpDir, `sub_${Date.now()}.c`);
-  const binFile = path.join(tmpDir, `sub_${Date.now()}.out`);
+  const id      = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const srcFile = path.join(tmpDir, `sub_${id}.c`);
+  const binFile = path.join(tmpDir, `sub_${id}.out`);
   fs.writeFileSync(srcFile, code, 'utf8');
   try {
     execSync(`gcc -O2 -o "${binFile}" "${srcFile}" 2>&1`, { timeout: 10000 });
@@ -125,8 +126,9 @@ function runCompiledC(code, input, timeoutMs) {
 // ── Compile + chạy C++ ──
 function runCompiledCpp(code, input, timeoutMs) {
   const tmpDir  = os.tmpdir();
-  const srcFile = path.join(tmpDir, `sub_${Date.now()}.cpp`);
-  const binFile = path.join(tmpDir, `sub_${Date.now()}.out`);
+  const id      = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const srcFile = path.join(tmpDir, `sub_${id}.cpp`);
+  const binFile = path.join(tmpDir, `sub_${id}.out`);
   fs.writeFileSync(srcFile, code, 'utf8');
   try {
     execSync(`g++ -O2 -std=c++17 -o "${binFile}" "${srcFile}" 2>&1`, { timeout: 10000 });
