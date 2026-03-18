@@ -147,6 +147,37 @@ router.delete('/:id', authMw, async (req, res) => {
 });
 
 /* ─────────────────────────────────────────────────────────
+   POST /api/problems/:id/testcases/bulk
+   Admin upload nhiều testcase cùng lúc (replace all)
+   ⚠️  Phải đặt TRƯỚC route /:id/testcases để Express không
+       nhầm "bulk" là :tcid
+───────────────────────────────────────────────────────── */
+router.post('/:id/testcases/bulk', authMw, async (req, res) => {
+  if (req.user.role !== 'admin')
+    return res.status(403).json({ error: 'Chỉ admin mới upload testcase' });
+
+  const { testcases } = req.body; // array: [{input, expected, is_sample, score_weight}]
+  if (!Array.isArray(testcases) || testcases.length === 0)
+    return res.status(400).json({ error: 'Danh sách testcase rỗng' });
+
+  // Xóa tất cả testcase cũ
+  await supabase.from('testcases').delete().eq('problem_id', req.params.id);
+
+  const rows = testcases.map((tc, i) => ({
+    problem_id:   req.params.id,
+    input:        String(tc.input || ''),
+    expected:     String(tc.expected || '').trim(),
+    is_sample:    tc.is_sample    || false,
+    score_weight: tc.score_weight || 1,
+    position:     i
+  }));
+
+  const { data, error } = await supabase.from('testcases').insert(rows).select();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ inserted: data.length, testcases: data });
+});
+
+/* ─────────────────────────────────────────────────────────
    POST /api/problems/:id/testcases
    Admin thêm testcase
 ───────────────────────────────────────────────────────── */
@@ -210,35 +241,6 @@ router.delete('/:id/testcases/:tcid', authMw, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ message: 'Đã xóa testcase' });
-});
-
-/* ─────────────────────────────────────────────────────────
-   POST /api/problems/:id/testcases/bulk
-   Admin upload nhiều testcase cùng lúc (replace all)
-───────────────────────────────────────────────────────── */
-router.post('/:id/testcases/bulk', authMw, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Chỉ admin mới upload testcase' });
-
-  const { testcases } = req.body; // array: [{input, expected, is_sample, score_weight}]
-  if (!Array.isArray(testcases) || testcases.length === 0)
-    return res.status(400).json({ error: 'Danh sách testcase rỗng' });
-
-  // Xóa tất cả testcase cũ
-  await supabase.from('testcases').delete().eq('problem_id', req.params.id);
-
-  const rows = testcases.map((tc, i) => ({
-    problem_id:   req.params.id,
-    input:        String(tc.input || ''),
-    expected:     String(tc.expected || '').trim(),
-    is_sample:    tc.is_sample    || false,
-    score_weight: tc.score_weight || 1,
-    position:     i
-  }));
-
-  const { data, error } = await supabase.from('testcases').insert(rows).select();
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ inserted: data.length, testcases: data });
 });
 
 module.exports = router;
