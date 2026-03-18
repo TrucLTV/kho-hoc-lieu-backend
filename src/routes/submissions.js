@@ -53,6 +53,7 @@ async function runPiston(language, version, code, input) {
     })
   });
   const data = await response.json();
+  console.log('🔍 Piston response:', JSON.stringify(data));
   if (data.compile?.stderr) throw new Error(data.compile.stderr);
   if (data.run?.stderr) throw new Error(data.run.stderr);
   return data.run?.stdout || '';
