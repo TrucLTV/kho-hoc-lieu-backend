@@ -13,11 +13,14 @@ router.get('/', authMw, async (req, res) => {
   const { item_id } = req.query;
   if (!item_id) return res.status(400).json({ error: 'Thiếu item_id' });
 
+  // Thử cả string lẫn number để tránh lỗi type mismatch với DB
   const { data: problems, error } = await supabase
     .from('coding_problems')
     .select('id, title, description, input_format, output_format, constraints, example_input, example_output, time_limit_ms, memory_limit_mb, allowed_languages, created_at')
     .eq('item_id', item_id)
     .order('created_at', { ascending: true });
+
+  console.log(`[problems] GET /?item_id=${item_id} → ${problems?.length ?? 'null'} kết quả`, error?.message || '');
 
   if (error) return res.status(500).json({ error: error.message });
 

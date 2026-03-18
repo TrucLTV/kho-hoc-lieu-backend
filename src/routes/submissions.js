@@ -272,6 +272,63 @@ router.get('/problem/:problem_id/ranking', authMw, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────
+// POST /api/submissions/simple
+// Học sinh nộp bài đơn giản (không có judge/testcase)
+// ⚠️ Phải đặt TRƯỚC route /:id để tránh conflict
+// ─────────────────────────────────────────────────────────
+router.post('/simple', authMw, async (req, res) => {
+  const { item_id, item_title, source_code, language } = req.body;
+  if (!source_code)
+    return res.status(400).json({ error: 'Thiếu source_code' });
+
+  const { data, error } = await supabase
+    .from('code_submissions')
+    .insert([{
+      problem_id:   null,
+      student_id:   req.user.id,
+      student_name: req.user.name,
+      language:     language || 'unknown',
+      source_code,
+      status:       'pending',
+      score:        0,
+      passed_tests: 0,
+      total_tests:  0,
+      error_msg:    item_title ? `Bài: ${item_title}` : '',
+      judged_at:    null
+    }])
+    .select().single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, id: data.id });
+});
+
+// ─────────────────────────────────────────────────────────
+// GET /api/submissions/simple
+// Admin xem tất cả bài nộp đơn giản từ học sinh
+// ⚠️ Phải đặt TRƯỚC route /:id để tránh conflict
+// ─────────────────────────────────────────────────────────
+router.get('/simple', authMw, async (req, res) => {
+  if (req.user.role !== 'admin')
+    return res.status(403).json({ error: 'Chỉ admin mới xem được' });
+
+  const { data, error } = await supabase
+    .from('code_submissions')
+    .select('id, student_name, language, source_code, error_msg, submitted_at, status')
+    .eq('status', 'pending')
+    .order('submitted_at', { ascending: false })
+    .limit(200);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  const mapped = (data || []).map(s => ({
+    ...s,
+    item_title: s.error_msg ? s.error_msg.replace(/^Bài: /, '') : '—'
+  }));
+
+  res.json(mapped);
+});
+
+// ─────────────────────────────────────────────────────────
 // GET /api/submissions?problem_id=xxx
 // Học sinh xem lịch sử nộp của mình
 // ─────────────────────────────────────────────────────────
@@ -332,62 +389,6 @@ router.get('/:id', authMw, async (req, res) => {
   }
 
   res.json({ ...sub, results: results || [] });
-});
-
-// ─────────────────────────────────────────────────────────
-// POST /api/submissions/simple
-// Học sinh nộp bài đơn giản (không có judge/testcase)
-// ─────────────────────────────────────────────────────────
-router.post('/simple', authMw, async (req, res) => {
-  const { item_id, item_title, source_code, language } = req.body;
-  if (!source_code)
-    return res.status(400).json({ error: 'Thiếu source_code' });
-
-  const { data, error } = await supabase
-    .from('code_submissions')
-    .insert([{
-      problem_id:   null,
-      student_id:   req.user.id,
-      student_name: req.user.name,
-      language:     language || 'unknown',
-      source_code,
-      status:       'pending',
-      score:        0,
-      passed_tests: 0,
-      total_tests:  0,
-      error_msg:    item_title ? `Bài: ${item_title}` : '',
-      judged_at:    null
-    }])
-    .select().single();
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true, id: data.id });
-});
-
-// ─────────────────────────────────────────────────────────
-// GET /api/submissions/simple
-// Admin xem tất cả bài nộp đơn giản từ học sinh
-// ─────────────────────────────────────────────────────────
-router.get('/simple', authMw, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Chỉ admin mới xem được' });
-
-  const { data, error } = await supabase
-    .from('code_submissions')
-    .select('id, student_name, language, source_code, error_msg, submitted_at, status')
-    .eq('status', 'pending')
-    .order('submitted_at', { ascending: false })
-    .limit(200);
-
-  if (error) return res.status(500).json({ error: error.message });
-
-  // Map error_msg → item_title để frontend dùng được
-  const mapped = (data || []).map(s => ({
-    ...s,
-    item_title: s.error_msg ? s.error_msg.replace(/^Bài: /, '') : '—'
-  }));
-
-  res.json(mapped);
 });
 
 module.exports = router;
