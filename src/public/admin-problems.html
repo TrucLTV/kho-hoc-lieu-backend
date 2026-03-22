@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quản lý Bài Tập – Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Sora:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink:        #0d1117;
+  --ink-2:      #1c2333;
+  --ink-3:      #24292f;
+  --surface:    #ffffff;
+  --surface-2:  #f6f8fa;
+  --surface-3:  #eef1f5;
+  --border:     #d0d7de;
+  --border-2:   #e8ecf0;
+  --accent:     #1a6bdc;
+  --accent-2:   #0550ae;
+  --accent-soft:#dbeafe;
+  --accent-glow:rgba(26,107,220,.12);
+  --green:      #1a7f37;
+  --green-bg:   #d1fae5;
+  --red:        #cf222e;
+  --red-bg:     #fee2e2;
+  --amber:      #9a6700;
+  --amber-bg:   #fef3c7;
+  --purple:     #6e40c9;
+  --purple-bg:  #ede9fe;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,.14);
+  --radius:     10px;
+  --radius-lg:  16px;
+  --transition: .18s cubic-bezier(.4,0,.2,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--surface-2);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+header {
+  background:var(--ink);
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.hdr {
+  max-width:1320px;margin:auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo { display:flex;align-items:center;gap:10px; }
+.logo-mark {
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,#3b82f6,#1a6bdc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo h1 { font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:white;letter-spacing:-.3px; }
+.hdr-right { display:flex;align-items:center;gap:8px; }
+.chip {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 11px;border-radius:20px;font-size:.72rem;font-weight:700;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);
+  border:1px solid rgba(255,255,255,.10);
+}
+.chip.gold { background:rgba(251,191,36,.15);color:#fbbf24;border-color:rgba(251,191,36,.2); }
+.btn-ghost {
+  padding:6px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);
+  border-radius:8px;color:rgba(255,255,255,.8);font-family:inherit;font-size:.8rem;font-weight:600;
+  cursor:pointer;transition:all var(--transition);text-decoration:none;display:flex;align-items:center;gap:6px;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.12);color:white;}
+
+/* ══════════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════════ */
+main{max-width:1320px;margin:0 auto;padding:24px 24px 80px;}
+
+/* ── Debug banner ── */
+#debugBanner {
+  display:none;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:var(--radius);
+  padding:11px 16px;margin-bottom:18px;font-size:.8rem;color:#92400e;font-weight:500;
+}
+
+/* ══════════════════════════════════════════
+   NAV TABS (pill style)
+══════════════════════════════════════════ */
+.nav-bar {
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border-2);
+  border-radius:var(--radius-lg);padding:6px;margin-bottom:20px;
+  box-shadow:var(--shadow-sm);gap:4px;
+}
+.nav-tabs { display:flex;gap:4px;flex-wrap:wrap; }
+.tab {
+  padding:7px 16px;border-radius:8px;font-size:.82rem;font-weight:600;
+  cursor:pointer;border:none;background:transparent;color:var(--ink-3);
+  transition:all var(--transition);display:flex;align-items:center;gap:7px;
+  font-family:inherit;
+}
+.tab .tab-count {
+  background:var(--surface-3);color:var(--ink-3);padding:1px 7px;border-radius:20px;font-size:.7rem;font-weight:700;
+}
+.tab.active {
+  background:var(--ink);color:white;
+}
+.tab.active .tab-count { background:rgba(255,255,255,.15);color:white; }
+.tab:hover:not(.active){background:var(--surface-2);}
+
+/* ══════════════════════════════════════════
+   CARDS / PANELS
+══════════════════════════════════════════ */
+.card {
+  background:var(--surface);border:1px solid var(--border-2);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;
+  margin-bottom:16px;
+}
+.card-header {
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--border-2);background:var(--surface);
+}
+.card-title {
+  font-size:.875rem;font-weight:700;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.card-title .icon {
+  width:28px;height:28px;border-radius:7px;background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+}
+.card-body{padding:18px 20px;}
+.card-body.no-pad{padding:0;}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn {
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  border-radius:8px;font-family:inherit;font-size:.82rem;font-weight:600;
+  cursor:pointer;border:1px solid transparent;transition:all var(--transition);
+  line-height:1;white-space:nowrap;
+}
+.btn-primary {
+  background:var(--accent);color:white;border-color:var(--accent);
+  box-shadow:0 1px 3px rgba(26,107,220,.35);
+}
+.btn-primary:hover{background:var(--accent-2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,107,220,.35);}
+.btn-secondary {
+  background:var(--surface);color:var(--ink-3);border-color:var(--border);
+}
+.btn-secondary:hover{background:var(--surface-2);border-color:var(--border);}
+.btn-warning {
+  background:var(--amber-bg);color:var(--amber);border-color:#fde68a;
+}
+.btn-warning:hover{background:#fef9c3;}
+.btn-danger {
+  background:var(--red-bg);color:var(--red);border-color:#fca5a5;
+}
+.btn-danger:hover{background:#fee2e2;}
+.btn-success {
+  background:var(--green-bg);color:var(--green);border-color:#bbf7d0;
+}
+.btn-sm { padding:5px 11px;font-size:.76rem; }
+.btn-xs { padding:3px 8px;font-size:.72rem; }
+
+/* ══════════════════════════════════════════
+   FORMS
+══════════════════════════════════════════ */
+.form-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+.form-group { margin-bottom:14px; }
+.form-group:last-child{ margin-bottom:0; }
+.form-label {
+  display:block;font-size:.74rem;font-weight:700;color:#57606a;
+  margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;
+}
+.form-input,.form-select,.form-textarea {
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:.875rem;color:var(--ink);
+  background:var(--surface);outline:none;transition:all var(--transition);
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus {
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,107,220,.10);
+}
+.form-textarea { resize:vertical;min-height:90px;font-family:'DM Mono',monospace;font-size:.82rem; }
+.form-textarea.prose { font-family:'DM Sans',sans-serif;font-size:.875rem;min-height:120px; }
+.form-hint{font-size:.72rem;color:#8c959f;margin-top:4px;}
+@media(max-width:680px){.form-grid-2{grid-template-columns:1fr;}}
+
+/* ══════════════════════════════════════════
+   DROPDOWN SELECTOR (bài tập)
+══════════════════════════════════════════ */
+.select-wrapper {
+  position:relative;
+}
+.select-wrapper select {
+  appearance:none;-webkit-appearance:none;
+  padding-right:36px;cursor:pointer;
+}
+.select-wrapper::after {
+  content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:#8c959f;pointer-events:none;font-size:.85rem;
+}
+
+/* ══════════════════════════════════════════
+   PROBLEM ITEMS (accordion-like)
+══════════════════════════════════════════ */
+.prob-accordion { display:flex;flex-direction:column;gap:8px; }
+.prob-card {
+  border:1.5px solid var(--border-2);border-radius:var(--radius);
+  overflow:hidden;transition:all var(--transition);background:var(--surface);
+}
+.prob-card:hover{ border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow); }
+.prob-card-header {
+  display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;
+  background:var(--surface);
+}
+.prob-lang-tags { display:flex;gap:4px;flex-wrap:wrap; }
+.lang-tag {
+  background:var(--surface-2);color:#57606a;padding:2px 8px;border-radius:6px;
+  font-size:.68rem;font-weight:700;font-family:'DM Mono',monospace;border:1px solid var(--border-2);
+}
+.prob-actions-row { display:flex;gap:6px;flex-shrink:0; }
+
+/* ══════════════════════════════════════════
+   SUBMISSIONS TABLE
+══════════════════════════════════════════ */
+.table-wrap { overflow-x:auto; }
+table { width:100%;border-collapse:collapse;font-size:.82rem; }
+thead th {
+  padding:10px 14px;text-align:left;font-size:.71rem;font-weight:700;
+  color:#57606a;text-transform:uppercase;letter-spacing:.5px;
+  background:var(--surface-2);border-bottom:1.5px solid var(--border-2);
+  white-space:nowrap;
+}
+tbody td {
+  padding:10px 14px;border-bottom:1px solid var(--border-2);
+  vertical-align:middle;
+}
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:var(--surface-2); }
+
+/* ── Status badges ── */
+.badge {
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap;
+}
+.badge-green  { background:var(--green-bg);color:var(--green); }
+.badge-red    { background:var(--red-bg);color:var(--red); }
+.badge-amber  { background:var(--amber-bg);color:var(--amber); }
+.badge-blue   { background:var(--accent-soft);color:var(--accent-2); }
+.badge-purple { background:var(--purple-bg);color:var(--purple); }
+.badge-gray   { background:var(--surface-3);color:#57606a; }
+.badge-sample { background:#d1fae5;color:#065f46; }
+.badge-hidden { background:var(--surface-3);color:#8c959f; }
+
+/* ── Code inline ── */
+code {
+  font-family:'DM Mono',monospace;font-size:.78rem;
+  background:var(--surface-2);color:var(--accent-2);
+  padding:2px 7px;border-radius:5px;border:1px solid var(--border-2);
+}
+
+/* ══════════════════════════════════════════
+   TESTCASE TABLE
+══════════════════════════════════════════ */
+.tc-code {
+  font-family:'DM Mono',monospace;font-size:.78rem;white-space:pre;
+  max-width:200px;overflow:hidden;text-overflow:ellipsis;color:var(--ink-3);
+}
+
+/* ══════════════════════════════════════════
+   SIMPLE SUBS – 2 col layout
+══════════════════════════════════════════ */
+.two-col { display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start; }
+@media(max-width:920px){ .two-col { grid-template-columns:1fr; } }
+
+.item-sidebar { position:sticky;top:72px; }
+.item-list-scroll { max-height:calc(100vh - 200px);overflow-y:auto; }
+
+.item-group-label {
+  padding:7px 14px 5px;font-size:.67rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.6px;color:#8c959f;
+  background:var(--surface-2);border-bottom:1px solid var(--border-2);
+  position:sticky;top:0;z-index:1;
+}
+.item-row {
+  padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border-2);
+  transition:background var(--transition);display:flex;flex-direction:column;gap:3px;
+}
+.item-row:last-child { border-bottom:none; }
+.item-row:hover { background:var(--surface-2); }
+.item-row.active { background:var(--accent-soft);border-left:3px solid var(--accent); }
+.item-row-name { font-size:.85rem;font-weight:600;color:var(--ink); }
+.item-row-count {
+  display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;
+  padding:2px 8px;border-radius:20px;width:fit-content;
+  background:var(--green-bg);color:var(--green);
+}
+.item-row-count.zero { background:var(--surface-3);color:#8c959f; }
+
+/* search in sidebar */
+.sidebar-search {
+  padding:10px 14px;border-bottom:1px solid var(--border-2);
+}
+.sidebar-search input {
+  width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:.82rem;color:var(--ink);background:var(--surface);
+  outline:none;transition:all var(--transition);
+}
+.sidebar-search input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,107,220,.08); }
+
+/* ══════════════════════════════════════════
+   AVATAR
+══════════════════════════════════════════ */
+.avatar {
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#1a6bdc);
+  color:white;font-weight:700;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* ══════════════════════════════════════════
+   STAT CHIPS (summary row)
+══════════════════════════════════════════ */
+.stat-row { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px; }
+.stat-chip {
+  background:var(--surface);border:1.5px solid var(--border-2);border-radius:10px;
+  padding:10px 16px;display:flex;align-items:center;gap:10px;min-width:130px;
+}
+.stat-chip .val { font-size:1.4rem;font-weight:800;font-family:'Sora',sans-serif;color:var(--ink); }
+.stat-chip .lbl { font-size:.72rem;color:#8c959f;font-weight:600; }
+
+/* ══════════════════════════════════════════
+   SCORE BAR
+══════════════════════════════════════════ */
+.score-bar-wrap { display:flex;align-items:center;gap:8px; }
+.score-bar {
+  flex:1;height:6px;background:var(--surface-3);border-radius:99px;overflow:hidden;
+  min-width:60px;
+}
+.score-bar-fill {
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#3b82f6,#10b981);
+  transition:width .4s ease;
+}
+.score-bar-fill.low { background:linear-gradient(90deg,#ef4444,#f97316); }
+.score-bar-fill.mid { background:linear-gradient(90deg,#f59e0b,#eab308); }
+.score-num { font-size:.8rem;font-weight:700;color:var(--ink);white-space:nowrap;min-width:36px; }
+
+/* ══════════════════════════════════════════
+   UPLOAD BOX
+══════════════════════════════════════════ */
+.upload-zone {
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:24px;text-align:center;background:var(--surface-2);
+  cursor:pointer;transition:all var(--transition);
+}
+.upload-zone:hover { border-color:var(--accent);background:var(--accent-soft); }
+.upload-zone p { font-size:.8rem;color:#8c959f;margin-top:6px; }
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+.modal-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.modal-box {
+  background:var(--surface);border-radius:var(--radius-lg);
+  width:100%;max-width:680px;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);border:1px solid var(--border-2);
+}
+.modal-box.modal-lg { max-width:820px; }
+.modal-head {
+  padding:18px 22px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border-2);position:sticky;top:0;background:var(--surface);z-index:1;
+}
+.modal-head h3 { font-size:.95rem;font-weight:700;color:var(--ink); }
+.modal-close {
+  width:30px;height:30px;border-radius:50%;background:var(--surface-2);
+  border:1px solid var(--border-2);color:var(--ink-3);cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);
+}
+.modal-close:hover { background:var(--red-bg);color:var(--red);border-color:#fca5a5; }
+.modal-content { padding:20px 22px; }
+.modal-footer {
+  padding:14px 22px;border-top:1px solid var(--border-2);
+  display:flex;gap:8px;justify-content:flex-end;
+  background:var(--surface-2);border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast {
+  position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--radius);
+  font-size:.84rem;font-weight:600;z-index:9999;box-shadow:var(--shadow-lg);
+  display:none;animation:slideUp .25s ease;min-width:200px;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{display:flex;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.toast-ok  { background:var(--ink);color:white; }
+.toast-err { background:#cf222e;color:white; }
+
+/* ══════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════ */
+.empty {
+  text-align:center;padding:40px 20px;color:#8c959f;
+}
+.empty-icon { font-size:2.5rem;margin-bottom:10px; }
+.empty p { font-size:.85rem; }
+.empty strong { color:var(--ink); }
+
+/* ══════════════════════════════════════════
+   SECTION DIVIDER
+══════════════════════════════════════════ */
+.section-divider {
+  display:flex;align-items:center;gap:10px;margin:18px 0;
+}
+.section-divider span { font-size:.72rem;font-weight:700;color:#8c959f;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap; }
+.section-divider::before,.section-divider::after {
+  content:'';flex:1;height:1px;background:var(--border-2);
+}
+
+/* ══════════════════════════════════════════
+   ITEM DETAIL PANEL HEADER INFO
+══════════════════════════════════════════ */
+.item-detail-banner {
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink-2) 100%);
+  border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.item-detail-banner h2 { font-family:'Sora',sans-serif;font-size:1.05rem;color:white;font-weight:700; }
+.item-detail-banner p { font-size:.78rem;color:rgba(255,255,255,.6);margin-top:4px; }
+.banner-actions { display:flex;gap:8px; }
+
+/* ══════════════════════════════════════════
+   REFRESH SPINNER
+══════════════════════════════════════════ */
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinning { animation:spin .8s linear infinite;display:inline-block; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media(max-width:600px) {
+  main { padding:16px 14px 60px; }
+  .hdr { padding:0 16px; }
+  .card-header,.card-body { padding:12px 14px; }
+  .nav-bar { flex-direction:column;align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════ -->
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-mark">📚</div>
+      <h1>Admin · Quản lý Bài Tập</h1>
+    </div>
+    <div class="hdr-right">
+      <span class="chip gold">👑 Admin</span>
+      <a href="index.html" class="btn-ghost">← Trang chính</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Debug banner -->
+  <div id="debugBanner"></div>
+
+  <!-- ── Nav bar ── -->
+  <div class="nav-bar">
+    <div class="nav-tabs">
+      <button class="tab active" onclick="setTab(this,'tabProblems')">
+        💻 Bài tập <span class="tab-count" id="tabCountProb">—</span>
+      </button>
+      <button class="tab" onclick="setTab(this,'tabSubmissions')">
+        📊 Kết quả chấm <span class="tab-count" id="tabCountJudge">—</span>
+      </button>
+
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="showCreateProbModal()">+ Tạo bài tập</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 1: BÀI TẬP
+  ══════════════════════════════════════════ -->
+  <div id="tabProblems">
+
+    <!-- Dropdown chọn bài tập -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="icon">📁</div>
+          Chọn bài tập từ kho học liệu
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span id="contentLoadStatus" style="font-size:.75rem;color:#8c959f"></span>
+          <button class="btn btn-secondary btn-sm" onclick="loadContent()">🔄 Tải lại</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="select-wrapper">
+          <select id="itemFilter" class="form-select" onchange="onItemFilterChange()">
+            <option value="">⏳ Đang tải kho học liệu…</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kết quả khi chọn 1 bài tập -->
+    <div id="iDetailBody" style="display:none">
+
+      <!-- Banner thông tin bài tập -->
+      <div class="item-detail-banner">
+        <div>
+          <h2 id="detailItemTitle">Bài tập</h2>
+          <p id="detailItemMeta">Chọn bài tập để bắt đầu quản lý</p>
+        </div>
+        <div class="banner-actions">
+          <button class="btn btn-success btn-sm" onclick="_createProbForSelected()">+ Thêm Judge</button>
+        </div>
+      </div>
+
+      <!-- Danh sách Judge problems -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon">🧪</div>
+            Bài tập Judge
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="_createProbForSelected()">+ Thêm Judge</button>
+        </div>
+        <div class="card-body">
+          <div id="iProbList">
+            <div class="empty"><div class="empty-icon">📭</div><p>Chưa có bài judge nào.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bài nộp học sinh của bài tập này -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon">📬</div>
+            Bài nộp học sinh
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="iSubCount" style="font-size:.75rem;color:#8c959f;display:none"></span>
+            <div class="select-wrapper" style="min-width:180px">
+              <select id="iFilterStudent" class="form-select" onchange="renderSubsTable()">
+                <option value="">— Tất cả học sinh —</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="_refreshItemSubs()">🔄</button>
+          </div>
+        </div>
+        <div class="card-body no-pad">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Học sinh</th>
+                  <th>Ngôn ngữ</th>
+                  <th>Điểm</th>
+                  <th>Code</th>
+                  <th>Thời gian</th>
+                </tr>
+              </thead>
+              <tbody id="iSubTableBody">
+                <tr><td colspan="6"><div class="empty" style="padding:28px">
+                  <div class="empty-icon">📭</div><p>Học sinh chưa nộp bài này.</p>
+                </div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 2: KẾT QUẢ CHẤM
+  ══════════════════════════════════════════ -->
+  <div id="tabSubmissions" style="display:none">
+
+    <!-- Stat row -->
+    <div class="stat-row" id="judgeStat" style="display:none">
+      <div class="stat-chip">
+        <div>
+          <div class="val" id="statTotal">—</div>
+          <div class="lbl">Tổng bài nộp</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div>
+          <div class="val" id="statAC" style="color:var(--green)">—</div>
+          <div class="lbl">Accepted</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div>
+          <div class="val" id="statWA" style="color:var(--red)">—</div>
+          <div class="lbl">Wrong Answer</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div>
+          <div class="val" id="statAvgScore" style="color:var(--accent)">—</div>
+          <div class="lbl">Điểm trung bình</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="icon">🏆</div>
+          Bài nộp có chấm điểm (Judge)
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadSubmissions()">🔄 Refresh</button>
+      </div>
+      <div class="card-body" style="padding-bottom:10px">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <div class="select-wrapper" style="flex:1;min-width:180px">
+            <select id="subFilterProb" class="form-select" onchange="loadSubmissions()">
+              <option value="">— Tất cả bài tập —</option>
+            </select>
+          </div>
+          <div class="select-wrapper" style="flex:1;min-width:180px">
+            <select id="subFilterStatus" class="form-select" onchange="loadSubmissions()">
+              <option value="">— Tất cả trạng thái —</option>
+              <option value="accepted">✅ Accepted</option>
+              <option value="wrong_answer">❌ Wrong Answer</option>
+              <option value="partial">⚠️ Partial</option>
+              <option value="error">🔴 Error</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-body no-pad">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Học sinh</th>
+                <th>Bài tập</th>
+                <th>Ngôn ngữ</th>
+                <th>Trạng thái</th>
+                <th>Điểm</th>
+                <th>Tests</th>
+                <th>Thời gian</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="subTableBody">
+              <tr><td colspan="8"><div class="empty" style="padding:32px">
+                <div class="empty-icon">⏳</div><p>Đang tải…</p>
+              </div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Tạo / Sửa bài tập
+════════════════════════════════════════════ -->
+<div id="modalProblem" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modalProblem')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalProbTitle">+ Tạo bài tập mới</h3>
+      <button class="modal-close" onclick="closeModal('modalProblem')">✕</button>
+    </div>
+    <div class="modal-content">
+      <div class="form-group">
+        <label class="form-label">Gắn vào bài học (Item) *</label>
+        <div class="select-wrapper">
+          <select id="probItemId" class="form-select"><option value="">— Chọn mục —</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tiêu đề bài tập *</label>
+        <input id="probTitle" class="form-input" placeholder="VD: Tổng hai số nguyên"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Đề bài (mô tả) *</label>
+        <textarea id="probDesc" class="form-textarea prose" placeholder="Nhập mô tả bài toán…"></textarea>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Định dạng Input</label>
+          <textarea id="probInputFmt" class="form-textarea" style="min-height:70px" placeholder="Mô tả định dạng input…"></textarea>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Định dạng Output</label>
+          <textarea id="probOutputFmt" class="form-textarea" style="min-height:70px" placeholder="Mô tả định dạng output…"></textarea>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label">Ràng buộc</label>
+        <input id="probConstraints" class="form-input" placeholder="VD: 1 ≤ n ≤ 10^5"/>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Ví dụ Input</label>
+          <textarea id="probExIn" class="form-textarea" style="min-height:70px" placeholder="3&#10;1 2 3"></textarea>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Ví dụ Output</label>
+          <textarea id="probExOut" class="form-textarea" style="min-height:70px" placeholder="6"></textarea>
+        </div>
+      </div>
+      <div class="form-grid-2" style="margin-top:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Time limit (ms)</label>
+          <input id="probTimeLimit" class="form-input" type="number" value="2000" min="100" max="30000"/>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Memory limit (MB)</label>
+          <input id="probMemLimit" class="form-input" type="number" value="256" min="32" max="1024"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px;margin-bottom:0">
+        <label class="form-label">Ngôn ngữ được phép</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;font-weight:500"><input type="checkbox" name="lang" value="python" checked> Python</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;font-weight:500"><input type="checkbox" name="lang" value="javascript" checked> JavaScript</label>
+          <label style="display:flex;align-items:center;gap=6px;cursor:pointer;font-size:.85rem;font-weight:500"><input type="checkbox" name="lang" value="c"> C</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.85rem;font-weight:500"><input type="checkbox" name="lang" value="cpp"> C++</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalProblem')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveProblem()">💾 Lưu bài tập</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Quản lý Testcase
+════════════════════════════════════════════ -->
+<div id="modalTestcase" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modalTestcase')">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <h3 id="tcModalTitle">🧪 Testcase</h3>
+      <button class="modal-close" onclick="closeModal('modalTestcase')">✕</button>
+    </div>
+    <div class="modal-content">
+
+      <!-- Thêm testcase đơn -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header" style="background:var(--surface-2)">
+          <div class="card-title" style="font-size:.82rem">➕ Thêm testcase mới</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid-2">
+            <div>
+              <label class="form-label">Input</label>
+              <textarea id="tcInput" class="form-textarea" style="min-height:80px" placeholder="Nhập input…"></textarea>
+            </div>
+            <div>
+              <label class="form-label">Expected Output *</label>
+              <textarea id="tcExpected" class="form-textarea" style="min-height:80px" placeholder="Nhập output mong đợi…"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:10px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.84rem;font-weight:500">
+              <input type="checkbox" id="tcIsSample"> Testcase mẫu (hiển thị cho học sinh)
+            </label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label class="form-label" style="margin:0">Trọng số:</label>
+              <input id="tcWeight" class="form-input" type="number" value="1" min="1" style="width:70px"/>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addTestcase()" style="margin-left:auto">➕ Thêm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk upload -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header" style="background:var(--surface-2)">
+          <div class="card-title" style="font-size:.82rem">📤 Upload hàng loạt (JSON)</div>
+        </div>
+        <div class="card-body">
+          <div class="upload-zone" onclick="document.getElementById('tcFile').click()">
+            <div style="font-size:1.6rem">📁</div>
+            <strong style="font-size:.88rem">Nhấn để chọn file JSON</strong>
+            <p>Định dạng: <code>[{"input":"...","expected":"...","is_sample":true},...]</code></p>
+          </div>
+          <input id="tcFile" type="file" accept=".json,.txt" style="display:none" onchange="handleTcUpload(event)"/>
+          <div class="form-hint" style="margin-top:8px">⚠️ Upload sẽ <strong>thay thế toàn bộ</strong> testcase hiện tại</div>
+        </div>
+      </div>
+
+      <!-- Danh sách testcase -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:.875rem;font-weight:700">Danh sách testcase <span class="badge badge-blue" id="tcCount">0</span></span>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllTestcases()">🗑 Xóa tất cả</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Input</th><th>Expected Output</th><th>Loại</th><th>Weight</th><th></th></tr>
+            </thead>
+            <tbody id="tcTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:20px;color:#8c959f">Chưa có testcase</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalTestcase')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: Chi tiết bài nộp
+════════════════════════════════════════════ -->
+<div id="modalSubDetail" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modalSubDetail')">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <h3>📄 Chi tiết bài nộp</h3>
+      <button class="modal-close" onclick="closeModal('modalSubDetail')">✕</button>
+    </div>
+    <div class="modal-content" id="subDetailBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalSubDetail')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+const API   = '/api';
+const token = () => localStorage.getItem('khl_token');
+
+let allItems       = [];
+let allProblems    = [];
+let _allSimpleSubs = [];
+let editingProbId  = null;
+let currentTcProbId = null;
+let currentTestcases = [];
+let _selItemId     = '';
+let _cachedSimpleSubs = [];
+let _subCountByItem = {};
+let _selectedItemId = '';
+
+// ── Init ──
+(async () => {
+  if (!token()) { location.href = 'index.html'; return; }
+  const user = parseJwt(token());
+  if (user?.role !== 'admin') { location.href = 'index.html'; return; }
+  await loadContent();
+})();
+
+// ── Load content tree ──
+async function loadContent() {
+  const statusEl = document.getElementById('contentLoadStatus');
+  if (statusEl) statusEl.textContent = '⏳ Đang tải…';
+  try {
+    const data = await apiFetch('/content');
+    allItems = [];
+    const rawSecs = Array.isArray(data) ? data : (data?.sections || data?.data || []);
+    rawSecs.forEach(sec => {
+      (sec.items || []).forEach(item => {
+        allItems.push({ id: item.id, title: item.title, section: sec.name, type: sec.type || 'lesson' });
+      });
+    });
+
+    if (statusEl) statusEl.textContent = `${allItems.length} bài học`;
+
+    const banner = document.getElementById('debugBanner');
+    if (!rawSecs.length) {
+      banner.style.display = 'block';
+      banner.innerHTML = '⚠️ API <code>/content</code> trả về mảng rỗng – Kho học liệu chưa có dữ liệu.';
+    } else if (!allItems.length) {
+      banner.style.display = 'block';
+      banner.innerHTML = `⚠️ Tìm thấy ${rawSecs.length} chương nhưng không có bài học nào. Hãy thêm bài học trên trang chính.`;
+    } else {
+      banner.style.display = 'none';
+    }
+
+    buildItemDropdown();
+    const opts = allItems.map(i => `<option value="${i.id}">${esc(i.section)} › ${esc(i.title)}</option>`).join('');
+    document.getElementById('probItemId').innerHTML  = '<option value="">— Chọn mục —</option>' + opts;
+    document.getElementById('tabCountProb').textContent = allItems.length;
+    populateSimpleSubItemFilter();
+    buildItemList();
+  } catch(e) {
+    const banner = document.getElementById('debugBanner');
+    banner.style.display = 'block';
+    banner.innerHTML = `❌ Lỗi tải kho học liệu: <strong>${esc(e.error||e.message||String(e))}</strong>`;
+    if (document.getElementById('contentLoadStatus')) document.getElementById('contentLoadStatus').textContent = '❌ Lỗi';
+  }
+}
+
+function buildItemDropdown() {
+  const sel = document.getElementById('itemFilter');
+  if (!sel) return;
+  if (!allItems.length) {
+    sel.innerHTML = '<option value="">⚠️ Chưa có bài nào – về trang chính để thêm</option>';
+    return;
+  }
+  let html = '<option value="">— Chọn bài tập —</option>';
+  const secs = {};
+  allItems.forEach(it => (secs[it.section] = secs[it.section] || []).push(it));
+  Object.entries(secs).forEach(([sec, items]) => {
+    html += `<optgroup label="${esc(sec)}">`;
+    items.forEach(it => { html += `<option value="${it.id}">${esc(it.title)}</option>`; });
+    html += `</optgroup>`;
+  });
+  sel.innerHTML = html;
+  if (_selItemId) sel.value = _selItemId;
+}
+
+// Khi chọn item từ dropdown
+async function onItemFilterChange() {
+  const itemId = document.getElementById('itemFilter').value;
+  _selItemId   = itemId;
+  const detail = document.getElementById('iDetailBody');
+
+  if (!itemId) { detail.style.display = 'none'; return; }
+
+  const item = allItems.find(i => i.id === itemId);
+  if (item) {
+    document.getElementById('detailItemTitle').textContent = item.title;
+    document.getElementById('detailItemMeta').textContent  = `${item.section} · Bài judge & bài nộp học sinh`;
+  }
+
+  detail.style.display = 'block';
+  document.getElementById('iSubTableBody').innerHTML =
+    `<tr><td colspan="6"><div class="empty" style="padding:28px"><div class="empty-icon">⏳</div><p>Đang tải bài nộp…</p></div></td></tr>`;
+  document.getElementById('iProbList').innerHTML =
+    `<div class="empty"><div class="empty-icon">⏳</div><p>Đang tải…</p></div>`;
+
+  await Promise.all([_loadSubsForItem(itemId), _loadProbsForItem(itemId)]);
+}
+
+async function _loadSubsForItem(itemId) {
+  try {
+    if (!_cachedSimpleSubs.length) {
+      _cachedSimpleSubs = await apiFetch('/submissions/simple') || [];
+    }
+    const item = allItems.find(i => i.id === itemId);
+    const subs = _cachedSimpleSubs
+      .filter(s => s.item_id === itemId || (item && s.item_title === item.title))
+      .map(s => ({ ...s, student_name: s.student_name || s.full_name || s.username || 'Ẩn danh' }))
+      .sort((a, b) => new Date(b.submitted_at||0) - new Date(a.submitted_at||0));
+
+    const students = [...new Set(subs.map(s => s.student_name||'').filter(Boolean))].sort();
+    document.getElementById('iFilterStudent').innerHTML =
+      '<option value="">— Tất cả học sinh —</option>' +
+      students.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+
+    window._currentSubs = subs;
+    renderSubsTable();
+  } catch(e) {
+    document.getElementById('iSubTableBody').innerHTML =
+      `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--red)">❌ Lỗi: ${esc(e.error||e.message||'')}</td></tr>`;
+  }
+}
+
+function renderSubsTable() {
+  const subs    = window._currentSubs || [];
+  const filterSt = document.getElementById('iFilterStudent').value;
+  const filtered = filterSt ? subs.filter(s => s.student_name === filterSt) : subs;
+  const tbody    = document.getElementById('iSubTableBody');
+  const countEl  = document.getElementById('iSubCount');
+
+  if (countEl) { countEl.textContent = `${filtered.length} bài nộp`; countEl.style.display = filtered.length ? '' : 'none'; }
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty" style="padding:28px">
+      <div class="empty-icon">📭</div><p>Học sinh chưa nộp bài này.</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((s, i) => {
+    const score = s.score != null ? s.score : (s.status === 'accepted' ? 100 : null);
+    const scoreHtml = score != null ? buildScoreBar(score) : `<span class="badge badge-gray">—</span>`;
+    return `<tr>
+      <td style="color:#8c959f;font-weight:700;font-size:.72rem">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar">${(s.student_name||'?').charAt(0).toUpperCase()}</div>
+          <strong>${esc(s.student_name||'—')}</strong>
+        </div>
+      </td>
+      <td><code>${esc(s.language||'—')}</code></td>
+      <td>${scoreHtml}</td>
+      <td>${s.source_code
+        ? `<button class="btn btn-secondary btn-sm" onclick="_viewCode(${i})">👁 Xem code</button>`
+        : `<span style="color:#8c959f;font-size:.78rem">—</span>`}
+      </td>
+      <td style="color:#8c959f;font-size:.75rem;white-space:nowrap">
+        ${s.submitted_at ? new Date(s.submitted_at).toLocaleString('vi-VN') : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function buildScoreBar(score) {
+  const cls = score >= 80 ? '' : score >= 50 ? 'mid' : 'low';
+  return `<div class="score-bar-wrap">
+    <div class="score-bar"><div class="score-bar-fill ${cls}" style="width:${score}%"></div></div>
+    <span class="score-num">${score}</span>
+  </div>`;
+}
+
+async function _loadProbsForItem(itemId) {
+  try {
+    const probs = await apiFetch(`/problems?item_id=${itemId}`) || [];
+    const el    = document.getElementById('iProbList');
+    if (!probs.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>
+        <p>Chưa có bài judge. Nhấn <strong>+ Thêm Judge</strong> để thêm testcase tự động chấm.</p></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="prob-accordion">${probs.map(p => `
+      <div class="prob-card">
+        <div class="prob-card-header">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:.9rem;color:var(--ink)">💻 ${esc(p.title)}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+              <span class="badge badge-gray">⏱ ${p.time_limit_ms}ms</span>
+              <div class="prob-lang-tags">
+                ${(p.allowed_languages||[]).map(l => `<span class="lang-tag">${esc(l)}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="prob-actions-row">
+            <button class="btn btn-warning btn-sm" onclick="openTestcaseModal('${p.id}','${esc(p.title).replace(/'/g,"\\'")}')">🧪 Testcase</button>
+            <button class="btn btn-secondary btn-sm" onclick="editProblem('${p.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProblem('${p.id}','${esc(p.title).replace(/'/g,"\\'")}')">🗑</button>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  } catch(e) {
+    document.getElementById('iProbList').innerHTML =
+      `<div class="empty" style="color:var(--red)">❌ Lỗi tải judge: ${esc(e.error||e.message||'')}</div>`;
+  }
+}
+
+async function _refreshItemSubs() {
+  _cachedSimpleSubs = [];
+  window._currentSubs = [];
+  document.getElementById('iSubCount').textContent = '';
+  document.getElementById('iSubTableBody').innerHTML =
+    `<tr><td colspan="6" style="text-align:center;padding:24px;color:#8c959f">⏳ Đang tải lại…</td></tr>`;
+  if (_selItemId) await _loadSubsForItem(_selItemId);
+}
+
+function _viewCode(filteredIdx) {
+  const filterSt = document.getElementById('iFilterStudent').value;
+  const subs     = window._currentSubs || [];
+  const filtered = filterSt ? subs.filter(s => s.student_name === filterSt) : subs;
+  const s        = filtered[filteredIdx];
+  if (!s) return;
+  const item     = allItems.find(i => i.id === _selItemId);
+  _renderCodeModal(s, item?.section, item?.title || s.item_title);
+}
+
+function _renderCodeModal(s, section, title) {
+  const score = s.score != null ? s.score : (s.status === 'accepted' ? 100 : null);
+  document.getElementById('subDetailBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface-2);border-radius:var(--radius);margin-bottom:16px;border:1px solid var(--border-2)">
+      <div class="avatar" style="width:42px;height:42px;font-size:1rem">${(s.student_name||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:.95rem">${esc(s.student_name||'Ẩn danh')}</div>
+        <div style="font-size:.75rem;color:#8c959f;margin-top:2px">📝 ${esc(section||'')} › ${esc(title||'')}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <code>${esc(s.language||'—')}</code>
+        ${score != null ? buildScoreBar(score) : ''}
+        <span class="badge badge-gray">🕐 ${s.submitted_at ? new Date(s.submitted_at).toLocaleString('vi-VN') : '—'}</span>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;font-weight:700;font-size:.74rem;color:#8c959f;text-transform:uppercase;letter-spacing:.5px">Source Code</div>
+    <pre style="background:#0d1117;color:#e6edf3;padding:20px;border-radius:var(--radius);font-size:.83rem;line-height:1.7;overflow:auto;max-height:440px;font-family:'DM Mono',monospace;white-space:pre-wrap;word-break:break-word">${esc(s.source_code||'(không có code)')}</pre>
+  `;
+  openModal('modalSubDetail');
+}
+
+function _createProbForSelected() {
+  showCreateProbModal();
+  setTimeout(() => { if (_selItemId) document.getElementById('probItemId').value = _selItemId; }, 60);
+}
+
+// ════════════════════════════════════════════════════
+// PROBLEM CRUD
+// ════════════════════════════════════════════════════
+function showCreateProbModal() {
+  editingProbId = null;
+  document.getElementById('modalProbTitle').textContent = '+ Tạo bài tập mới';
+  clearProbForm();
+  if (_selItemId) setTimeout(() => { document.getElementById('probItemId').value = _selItemId; }, 30);
+  openModal('modalProblem');
+}
+
+async function editProblem(id) {
+  try {
+    const prob = await apiFetch(`/problems/${id}`);
+    editingProbId = id;
+    document.getElementById('modalProbTitle').textContent = '✏️ Sửa bài tập';
+    document.getElementById('probItemId').value      = prob.item_id || '';
+    document.getElementById('probTitle').value       = prob.title || '';
+    document.getElementById('probDesc').value        = prob.description || '';
+    document.getElementById('probInputFmt').value    = prob.input_format || '';
+    document.getElementById('probOutputFmt').value   = prob.output_format || '';
+    document.getElementById('probConstraints').value = prob.constraints || '';
+    document.getElementById('probExIn').value        = prob.example_input || '';
+    document.getElementById('probExOut').value       = prob.example_output || '';
+    document.getElementById('probTimeLimit').value   = prob.time_limit_ms || 2000;
+    document.getElementById('probMemLimit').value    = prob.memory_limit_mb || 256;
+    const langs = prob.allowed_languages || [];
+    document.querySelectorAll('input[name="lang"]').forEach(cb => { cb.checked = langs.includes(cb.value); });
+    openModal('modalProblem');
+  } catch(e) { showToast('Lỗi tải bài tập: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function saveProblem() {
+  const item_id     = document.getElementById('probItemId').value;
+  const title       = document.getElementById('probTitle').value.trim();
+  const description = document.getElementById('probDesc').value.trim();
+  if (!item_id || !title || !description) { showToast('Vui lòng điền đầy đủ: mục, tiêu đề, đề bài', 'err'); return; }
+  const langs = [...document.querySelectorAll('input[name="lang"]:checked')].map(c => c.value);
+  if (!langs.length) { showToast('Chọn ít nhất 1 ngôn ngữ', 'err'); return; }
+
+  const body = {
+    item_id, title, description,
+    input_format:    document.getElementById('probInputFmt').value,
+    output_format:   document.getElementById('probOutputFmt').value,
+    constraints:     document.getElementById('probConstraints').value,
+    example_input:   document.getElementById('probExIn').value,
+    example_output:  document.getElementById('probExOut').value,
+    time_limit_ms:   parseInt(document.getElementById('probTimeLimit').value) || 2000,
+    memory_limit_mb: parseInt(document.getElementById('probMemLimit').value) || 256,
+    allowed_languages: langs
+  };
+
+  try {
+    const url    = editingProbId ? `/problems/${editingProbId}` : '/problems';
+    const method = editingProbId ? 'PUT' : 'POST';
+    await apiFetch(url, { method, body: JSON.stringify(body) });
+    showToast(editingProbId ? '✅ Đã cập nhật bài tập' : '✅ Đã tạo bài tập mới', 'ok');
+    closeModal('modalProblem');
+    if (_selItemId) await _loadProbsForItem(_selItemId);
+  } catch(e) { showToast('Lỗi: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function deleteProblem(id, title) {
+  if (!confirm(`Xóa bài tập "${title}"?\nTất cả testcase và bài nộp sẽ bị xóa!`)) return;
+  try {
+    await apiFetch(`/problems/${id}`, { method: 'DELETE' });
+    showToast('🗑 Đã xóa bài tập', 'ok');
+    if (_selItemId) await _loadProbsForItem(_selItemId);
+  } catch(e) { showToast('Lỗi: ' + (e.error || e.message || ''), 'err'); }
+}
+
+function clearProbForm() {
+  ['probTitle','probDesc','probInputFmt','probOutputFmt','probConstraints','probExIn','probExOut'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('probItemId').value     = '';
+  document.getElementById('probTimeLimit').value  = 2000;
+  document.getElementById('probMemLimit').value   = 256;
+  document.querySelectorAll('input[name="lang"]').forEach(c => { c.checked = c.value === 'python' || c.value === 'javascript'; });
+}
+
+// ════════════════════════════════════════════════════
+// TESTCASE MANAGEMENT
+// ════════════════════════════════════════════════════
+async function openTestcaseModal(probId, probTitle) {
+  currentTcProbId = probId;
+  document.getElementById('tcModalTitle').textContent = `🧪 Testcase – ${probTitle}`;
+  await loadTestcases(probId);
+  openModal('modalTestcase');
+}
+
+async function loadTestcases(probId) {
+  try {
+    const prob = await apiFetch(`/problems/${probId}`);
+    currentTestcases = prob.testcases || [];
+    renderTestcases();
+  } catch(e) { showToast('Lỗi tải testcase', 'err'); }
+}
+
+function renderTestcases() {
+  const count = currentTestcases.length;
+  document.getElementById('tcCount').textContent = count;
+  const tbody = document.getElementById('tcTableBody');
+  if (!count) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#8c959f">Chưa có testcase</td></tr>';
+    return;
+  }
+  tbody.innerHTML = currentTestcases.map((tc, i) => `
+    <tr>
+      <td style="font-weight:700;color:#8c959f;font-size:.76rem">${i+1}</td>
+      <td><div class="tc-code">${esc(tc.input).substring(0,80)}</div></td>
+      <td><div class="tc-code">${esc(tc.expected).substring(0,80)}</div></td>
+      <td>${tc.is_sample ? '<span class="badge badge-sample">Mẫu</span>' : '<span class="badge badge-gray">Ẩn</span>'}</td>
+      <td style="font-weight:700">${tc.score_weight}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="deleteTestcase('${tc.id}')">🗑</button></td>
+    </tr>
+  `).join('');
+}
+
+async function addTestcase() {
+  const input    = document.getElementById('tcInput').value;
+  const expected = document.getElementById('tcExpected').value.trim();
+  const isSample = document.getElementById('tcIsSample').checked;
+  const weight   = parseInt(document.getElementById('tcWeight').value) || 1;
+  if (!expected) { showToast('Expected output không được trống', 'err'); return; }
+  try {
+    await apiFetch(`/problems/${currentTcProbId}/testcases`, {
+      method: 'POST',
+      body: JSON.stringify({ input, expected, is_sample: isSample, score_weight: weight, position: currentTestcases.length })
+    });
+    showToast('✅ Đã thêm testcase', 'ok');
+    document.getElementById('tcInput').value    = '';
+    document.getElementById('tcExpected').value = '';
+    document.getElementById('tcIsSample').checked = false;
+    await loadTestcases(currentTcProbId);
+    if (_selItemId) _loadProbsForItem(_selItemId);
+  } catch(e) { showToast('Lỗi: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function deleteTestcase(id) {
+  if (!confirm('Xóa testcase này?')) return;
+  try {
+    await apiFetch(`/problems/${currentTcProbId}/testcases/${id}`, { method: 'DELETE' });
+    showToast('🗑 Đã xóa testcase', 'ok');
+    await loadTestcases(currentTcProbId);
+  } catch(e) { showToast('Lỗi: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function deleteAllTestcases() {
+  if (!confirm(`Xóa TẤT CẢ ${currentTestcases.length} testcase?\nHành động này không thể hoàn tác!`)) return;
+  try {
+    for (const tc of currentTestcases) {
+      await apiFetch(`/problems/${currentTcProbId}/testcases/${tc.id}`, { method: 'DELETE' }).catch(() => {});
+    }
+    showToast('🗑 Đã xóa tất cả testcase', 'ok');
+    await loadTestcases(currentTcProbId);
+  } catch(e) { showToast('Lỗi: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function handleTcUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    let data;
+    try { data = JSON.parse(text); } catch { showToast('File JSON không hợp lệ', 'err'); return; }
+    if (!Array.isArray(data) || !data.length) { showToast('Mảng testcase rỗng hoặc sai định dạng', 'err'); return; }
+    if (!data.every(tc => tc.expected !== undefined)) { showToast('Mỗi testcase cần có trường "expected"', 'err'); return; }
+    if (!confirm(`Upload ${data.length} testcase? Testcase cũ sẽ bị xóa hết!`)) return;
+    await apiFetch(`/problems/${currentTcProbId}/testcases/bulk`, {
+      method: 'POST',
+      body: JSON.stringify({ testcases: data })
+    });
+    showToast(`✅ Đã upload ${data.length} testcase`, 'ok');
+    await loadTestcases(currentTcProbId);
+    event.target.value = '';
+  } catch(e) { showToast('Lỗi upload: ' + (e.error || e.message || ''), 'err'); }
+}
+
+// ════════════════════════════════════════════════════
+// TAB: JUDGE SUBMISSIONS
+// ════════════════════════════════════════════════════
+async function loadSubmissions() {
+  const probId = document.getElementById('subFilterProb').value;
+  const status = document.getElementById('subFilterStatus').value;
+  let url = '/submissions';
+  if (probId) url += `?problem_id=${probId}`;
+
+  const tbody = document.getElementById('subTableBody');
+  tbody.innerHTML = `<tr><td colspan="8"><div class="empty" style="padding:28px"><div class="empty-icon">⏳</div><p>Đang tải…</p></div></td></tr>`;
+
+  try {
+    let data = await apiFetch(url);
+    if (status) data = data.filter(s => s.status === status);
+
+    // Stats
+    const statRow = document.getElementById('judgeStat');
+    if (statRow) {
+      statRow.style.display = 'flex';
+      document.getElementById('statTotal').textContent = data.length;
+      document.getElementById('statAC').textContent    = data.filter(s => s.status === 'accepted').length;
+      document.getElementById('statWA').textContent    = data.filter(s => s.status === 'wrong_answer').length;
+      const scores = data.filter(s => s.score != null).map(s => s.score);
+      document.getElementById('statAvgScore').textContent = scores.length
+        ? (scores.reduce((a,b) => a+b, 0) / scores.length).toFixed(1)
+        : '—';
+    }
+    document.getElementById('tabCountJudge').textContent = data.length;
+
+    const statusMeta = {
+      accepted:    { label:'Accepted',    cls:'badge-green'  },
+      wrong_answer:{ label:'Wrong Answer',cls:'badge-red'    },
+      partial:     { label:'Partial',     cls:'badge-amber'  },
+      error:       { label:'Error',       cls:'badge-red'    },
+      judging:     { label:'Judging',     cls:'badge-blue'   },
+      pending:     { label:'Pending',     cls:'badge-gray'   },
+    };
+    const probMap = {};
+    allProblems.forEach(p => { probMap[p.id] = p.title; });
+
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:32px"><div class="empty-icon">📭</div><p>Không có bài nộp nào</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(s => {
+      const sm = statusMeta[s.status] || { label: s.status, cls: 'badge-gray' };
+      const scoreBar = s.score != null ? buildScoreBar(s.score) : `<span class="badge badge-gray">—</span>`;
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:7px"><div class="avatar">${(s.student_name||'?').charAt(0).toUpperCase()}</div><strong>${esc(s.student_name||'—')}</strong></div></td>
+        <td style="font-weight:600">${esc(probMap[s.problem_id] || '—')}</td>
+        <td><code>${esc(s.language||'—')}</code></td>
+        <td><span class="badge ${sm.cls}">${sm.label}</span></td>
+        <td>${scoreBar}</td>
+        <td><span style="font-weight:700">${s.passed_tests||0}</span><span style="color:#8c959f">/${s.total_tests||0}</span></td>
+        <td style="font-size:.74rem;color:#8c959f;white-space:nowrap">${formatDate(s.submitted_at)}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="viewSubmission('${s.id}')">📄 Xem</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) { showToast('Lỗi tải submissions: ' + (e.error || e.message || ''), 'err'); }
+}
+
+async function viewSubmission(id) {
+  try {
+    const data = await apiFetch(`/submissions/${id}`);
+    const statusMeta = {
+      accepted:'✅ Accepted', wrong_answer:'❌ Wrong Answer',
+      partial:'⚠️ Partial', error:'🔴 Error'
+    };
+    const scoreBar = data.score != null ? buildScoreBar(data.score) : '';
+    document.getElementById('subDetailBody').innerHTML = `
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:14px;background:var(--surface-2);border-radius:var(--radius);border:1px solid var(--border-2)">
+        <span class="badge badge-blue" style="font-size:.82rem;padding:6px 14px">${statusMeta[data.status]||data.status}</span>
+        <div style="display:flex;align-items:center;gap:8px;min-width:180px">${scoreBar}</div>
+        <span class="badge badge-gray">${data.passed_tests}/${data.total_tests} tests · ${data.language}</span>
+        <span class="badge badge-gray">🕐 ${formatDate(data.submitted_at)}</span>
+      </div>
+      ${data.error_msg ? `<div style="background:var(--red-bg);border:1.5px solid #fca5a5;border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:.82rem;color:var(--red);margin-bottom:14px;white-space:pre-wrap">${esc(data.error_msg)}</div>` : ''}
+      <div style="margin-bottom:8px;font-weight:700;font-size:.74rem;color:#8c959f;text-transform:uppercase;letter-spacing:.5px">Source Code</div>
+      <pre style="background:#0d1117;color:#e6edf3;padding:18px;border-radius:var(--radius);font-size:.82rem;overflow:auto;max-height:300px;font-family:'DM Mono',monospace">${esc(data.source_code||'')}</pre>
+      ${(data.results||[]).length ? `
+        <div style="margin-top:16px;font-weight:700;font-size:.74rem;color:#8c959f;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Kết quả từng testcase</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${data.results.map((r,i) => `
+            <div class="badge ${r.passed ? 'badge-green' : 'badge-red'}" style="padding:5px 12px">
+              #${i+1} ${r.passed?'✓':'✗'} ${r.exec_time_ms}ms
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    `;
+    openModal('modalSubDetail');
+  } catch(e) { showToast('Lỗi tải chi tiết: ' + (e.error || e.message || ''), 'err'); }
+}
+
+// ════════════════════════════════════════════════════
+// SIMPLE SUBMISSIONS – Tab 3
+// ════════════════════════════════════════════════════
+function populateSimpleSubItemFilter() { renderItemList(); }
+
+function buildItemList() { renderItemList(); }
+
+function renderItemList() {
+  const q   = (document.getElementById('ssSearchItem')?.value || '').toLowerCase();
+  const el  = document.getElementById('ssItemList');
+  if (!el) return;
+
+  const sections = {};
+  allItems.forEach(item => {
+    if (q && !item.title.toLowerCase().includes(q) && !item.section.toLowerCase().includes(q)) return;
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push(item);
+  });
+
+  if (!Object.keys(sections).length) {
+    el.innerHTML = '<div class="empty" style="padding:24px"><p>Không tìm thấy bài tập nào.</p></div>';
+    return;
+  }
+
+  let html = '';
+  Object.entries(sections).forEach(([sec, items]) => {
+    html += `<div class="item-group-label">${esc(sec)}</div>`;
+    items.forEach(item => {
+      const cnt    = _subCountByItem[item.id] || 0;
+      const active = _selectedItemId === item.id ? ' active' : '';
+      const badge  = cnt > 0
+        ? `<span class="item-row-count">📥 ${cnt} bài nộp</span>`
+        : `<span class="item-row-count zero">Chưa có bài nộp</span>`;
+      html += `<div class="item-row${active}" onclick="selectSSItem('${item.id}','${esc(item.section)}','${esc(item.title).replace(/'/g,"\\'")}')">
+        <div class="item-row-name">${esc(item.title)}</div>
+        ${badge}
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+function selectSSItem(itemId, section, title) {
+  _selectedItemId = itemId;
+  document.getElementById('simpleSubFilterItem').value = itemId;
+  document.getElementById('ssTableTitle').textContent = title;
+  document.getElementById('simpleSubFilterStudent').value = '';
+  renderItemList();
+  renderSimpleSubs();
+}
+
+async function loadSimpleSubs() {
+  document.getElementById('ssItemList').innerHTML =
+    '<div class="empty" style="padding:24px"><div class="empty-icon">⏳</div><p>Đang tải…</p></div>';
+  try {
+    const data = await apiFetch('/submissions/simple');
+    _allSimpleSubs = data || [];
+
+    _subCountByItem = {};
+    _allSimpleSubs.forEach(s => {
+      const key = s.item_id || s.item_title || '';
+      if (key) _subCountByItem[key] = (_subCountByItem[key] || 0) + 1;
+    });
+    allItems.forEach(item => {
+      if (!_subCountByItem[item.id]) {
+        const byTitle = _allSimpleSubs.filter(s => s.item_title === item.title).length;
+        if (byTitle) _subCountByItem[item.id] = byTitle;
+      }
+    });
+
+    const students = [...new Set(_allSimpleSubs.map(s => s.student_name||'').filter(Boolean))].sort();
+    document.getElementById('simpleSubFilterStudent').innerHTML =
+      '<option value="">— Tất cả —</option>' +
+      students.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+
+    document.getElementById('tabCountSub').textContent = _allSimpleSubs.length;
+    renderItemList();
+    renderSimpleSubs();
+  } catch(e) {
+    document.getElementById('ssItemList').innerHTML =
+      `<div class="empty" style="padding:24px;color:var(--red)">❌ ${esc(e.error||e.message||'Lỗi tải dữ liệu')}</div>`;
+  }
+}
+
+function renderSimpleSubs() {
+  const filterItemId  = document.getElementById('simpleSubFilterItem').value;
+  const filterStudent = document.getElementById('simpleSubFilterStudent').value;
+  const tbody         = document.getElementById('simpleSubTableBody');
+  const countEl       = document.getElementById('simpleSubCount');
+  const statRow       = document.getElementById('ssStatRow');
+
+  if (!filterItemId && !filterStudent) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:48px;color:#8c959f">
+      <div style="font-size:2rem;margin-bottom:8px">👈</div>
+      <p>Chọn một bài tập ở cột bên trái để xem bài nộp</p>
+    </td></tr>`;
+    if (countEl) countEl.style.display = 'none';
+    if (statRow) statRow.style.display = 'none';
+    return;
+  }
+
+  let subs = _allSimpleSubs;
+  if (filterItemId) {
+    const itemObj = allItems.find(i => i.id === filterItemId);
+    subs = subs.filter(s => s.item_id === filterItemId || (itemObj && s.item_title === itemObj.title));
+  }
+  if (filterStudent) subs = subs.filter(s => (s.student_name||'') === filterStudent);
+  subs = [...subs].sort((a,b) => new Date(b.submitted_at||0) - new Date(a.submitted_at||0));
+
+  if (countEl) { countEl.textContent = `${subs.length} bài nộp`; countEl.style.display = subs.length ? '' : 'none'; }
+
+  // Update stat row
+  if (statRow && filterItemId) {
+    statRow.style.display = 'flex';
+    const uniq   = new Set(subs.map(s => s.student_name||'').filter(Boolean)).size;
+    const scores = subs.filter(s => s.score != null).map(s => s.score);
+    document.getElementById('ssTotalSubs').textContent    = subs.length;
+    document.getElementById('ssUniqStudents').textContent = uniq;
+    document.getElementById('ssAvgScore').textContent     = scores.length
+      ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+  }
+
+  if (!subs.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty" style="padding:32px">
+      <div class="empty-icon">📭</div>
+      <p>${filterItemId ? 'Học sinh chưa nộp bài này.' : 'Chưa có bài nộp nào.'}</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = subs.map((s, i) => {
+    const score = s.score != null ? s.score : (s.status === 'accepted' ? 100 : null);
+    const scoreHtml = score != null ? buildScoreBar(score) : `<span class="badge badge-gray">—</span>`;
+    return `<tr>
+      <td style="color:#8c959f;font-weight:700;font-size:.72rem">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar">${(s.student_name||'?').charAt(0).toUpperCase()}</div>
+          <strong>${esc(s.student_name||'—')}</strong>
+        </div>
+      </td>
+      <td><code>${esc(s.language||'—')}</code></td>
+      <td>${scoreHtml}</td>
+      <td>${s.source_code
+        ? `<button class="btn btn-secondary btn-sm" onclick="viewSimpleCode('${esc(s.id||'')}',${i})">👁 Xem code</button>`
+        : `<span style="color:#8c959f;font-size:.78rem">—</span>`}
+      </td>
+      <td style="color:#8c959f;font-size:.75rem;white-space:nowrap">
+        ${s.submitted_at ? new Date(s.submitted_at).toLocaleString('vi-VN') : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewSimpleCode(subId, fallbackIdx) {
+  const filterItemId  = document.getElementById('simpleSubFilterItem').value;
+  const filterStudent = document.getElementById('simpleSubFilterStudent').value;
+  let filtered = _allSimpleSubs;
+  if (filterItemId) {
+    const itemObj = allItems.find(i => i.id === filterItemId);
+    filtered = filtered.filter(s => s.item_id === filterItemId || (itemObj && s.item_title === itemObj.title));
+  }
+  if (filterStudent) filtered = filtered.filter(s => s.student_name === filterStudent);
+  filtered = [...filtered].sort((a,b) => new Date(b.submitted_at||0) - new Date(a.submitted_at||0));
+
+  const s = subId ? (_allSimpleSubs.find(x => x.id === subId) || filtered[fallbackIdx]) : filtered[fallbackIdx];
+  if (!s) return;
+  const itemObj  = allItems.find(x => x.id === s.item_id || x.title === s.item_title);
+  _renderCodeModal(s, itemObj?.section, itemObj?.title || s.item_title || s.item_id || '');
+}
+
+// ════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════
+function setTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tabProblems','tabSubmissions'].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? '' : 'none';
+  });
+  if (tabId === 'tabProblems')    buildItemDropdown();
+  if (tabId === 'tabSubmissions') loadSubmissions();
+}
+
+// ════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+async function apiFetch(path, optsOrMethod = {}, legacyBody) {
+  let method, bodyStr, extra = {};
+  if (typeof optsOrMethod === 'string') {
+    method  = optsOrMethod;
+    bodyStr = legacyBody ? JSON.stringify(legacyBody) : undefined;
+  } else {
+    method  = optsOrMethod.method || 'GET';
+    bodyStr = optsOrMethod.body;
+    extra   = optsOrMethod.headers ? { headers: optsOrMethod.headers } : {};
+  }
+  const res = await fetch(API + path, {
+    method,
+    headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json', ...extra.headers },
+    body: bodyStr
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw { ...json, _status: res.status };
+  return json;
+}
+
+function parseJwt(t) {
+  try { return JSON.parse(atob(t.split('.')[1])); } catch { return {}; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('vi-VN');
+}
+
+function showToast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `toast toast-${type} show`;
+  el.style.display = 'flex';
+  setTimeout(() => { el.classList.remove('show'); el.style.display = 'none'; }, 3200);
+}
+</script>
+</body>
+</html>

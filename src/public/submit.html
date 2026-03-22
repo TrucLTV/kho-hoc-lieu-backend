@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nộp Bài Tập – Kho Học Liệu</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css"/>
+<style>
+:root{
+  --blue-deep:#071e3d;--blue-navy:#0a2540;--blue-mid:#1a4a8a;
+  --blue-bright:#2c7be5;--blue-light:#5b9cf6;--blue-pale:#dbeafe;
+  --blue-frost:#eff6ff;--white:#fff;--gray-soft:#f0f5ff;
+  --text-dark:#071e3d;--text-mid:#2d5282;--text-muted:#718096;
+  --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+  --shadow-card:0 4px 24px rgba(44,123,229,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--blue-frost);color:var(--text-dark);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(44,123,229,.10) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+header{background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 60%,var(--blue-bright) 100%);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(10,37,64,.25);}
+.hdr{max-width:1300px;margin:auto;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-ico{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid rgba(255,255,255,.2);}
+.logo h1{font-family:'Playfair Display',serif;font-size:1.25rem;color:white;}
+.hdr-info{display:flex;align-items:center;gap:10px;}
+.user-chip{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 13px;font-size:.78rem;color:white;font-weight:600;}
+.btn-back{padding:7px 15px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.22);border-radius:18px;color:white;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.btn-back:hover{background:rgba(255,255,255,.22);}
+
+.layout{max-width:1300px;margin:0 auto;padding:24px 28px 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;position:relative;z-index:1;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}}
+
+.panel{background:white;border-radius:16px;box-shadow:var(--shadow-card);border:1.5px solid var(--blue-pale);overflow:hidden;}
+.panel-hdr{padding:18px 22px 14px;background:linear-gradient(135deg,var(--blue-navy),var(--blue-mid));color:white;}
+.panel-hdr h2{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.panel-hdr p{font-size:.78rem;color:rgba(255,255,255,.65);margin-top:4px;}
+.panel-body{padding:20px 22px;}
+
+.prob-title{font-size:1.2rem;font-weight:800;color:var(--blue-deep);margin-bottom:6px;}
+.prob-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.meta-tag{padding:4px 12px;border-radius:12px;font-size:.74rem;font-weight:700;}
+.tag-time{background:#fef3c7;color:#92400e;}
+.tag-mem{background:#e0e7ff;color:#3730a3;}
+.tag-lang{background:#dcfce7;color:#166534;}
+.section-title{font-size:.82rem;font-weight:800;color:var(--blue-mid);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px;}
+.prob-text{font-size:.9rem;color:var(--text-dark);line-height:1.65;white-space:pre-wrap;}
+.io-box{background:var(--blue-frost);border:1.5px solid var(--blue-pale);border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:.85rem;color:var(--text-dark);white-space:pre-wrap;margin-top:6px;}
+.sample-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+@media(max-width:600px){.sample-pair{grid-template-columns:1fr;}}
+
+.p-tabs{display:flex;border-bottom:2px solid var(--blue-pale);margin:-20px -22px 18px;padding:0 22px;}
+.p-tab{padding:12px 18px;font-size:.84rem;font-weight:700;color:var(--text-muted);border-bottom:2.5px solid transparent;cursor:pointer;margin-bottom:-2px;transition:all .2s;}
+.p-tab.active{color:var(--blue-bright);border-bottom-color:var(--blue-bright);}
+.p-panel{display:none;} .p-panel.active{display:block;}
+
+.editor-wrap{position:relative;}
+.lang-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.lang-sel{padding:8px 12px;border:2px solid var(--blue-pale);border-radius:10px;font-family:inherit;font-size:.84rem;font-weight:600;color:var(--text-dark);background:white;outline:none;cursor:pointer;}
+.lang-sel:focus{border-color:var(--blue-bright);}
+.editor-actions{margin-left:auto;display:flex;gap:8px;}
+.btn{padding:9px 18px;border-radius:10px;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.btn-submit{background:linear-gradient(135deg,var(--blue-bright),var(--blue-mid));color:white;box-shadow:0 4px 14px rgba(44,123,229,.3);}
+.btn-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(44,123,229,.4);}
+.btn-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-sec{background:white;color:var(--blue-mid);border:2px solid var(--blue-pale);}
+.btn-sec:hover{border-color:var(--blue-light);}
+.btn-danger{background:white;color:var(--danger);border:2px solid #fecaca;}
+.btn-danger:hover{background:#fef2f2;}
+
+.CodeMirror{height:380px;border-radius:10px;font-size:.88rem;border:2px solid var(--blue-pale);transition:border-color .2s;}
+.CodeMirror-focused{border-color:var(--blue-bright);}
+
+.verdict{padding:16px 18px;border-radius:12px;display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.verdict-ac{background:#d1fae5;border:1.5px solid #6ee7b7;}
+.verdict-wa{background:#fee2e2;border:1.5px solid #fca5a5;}
+.verdict-pa{background:#fef3c7;border:1.5px solid #fcd34d;}
+.verdict-err{background:#fef2f2;border:1.5px solid #fca5a5;}
+.verdict-judging{background:#ede9fe;border:1.5px solid #c4b5fd;}
+.verdict-ico{font-size:22px;}
+.verdict-text h3{font-size:1rem;font-weight:800;}
+.verdict-ac .verdict-text h3{color:#065f46;}
+.verdict-wa .verdict-text h3,.verdict-err .verdict-text h3{color:#991b1b;}
+.verdict-pa .verdict-text h3{color:#92400e;}
+.verdict-judging .verdict-text h3{color:#5b21b6;}
+.verdict-sub{font-size:.79rem;margin-top:2px;color:inherit;opacity:.75;}
+.score-big{font-size:2rem;font-weight:900;margin-left:auto;color:var(--blue-mid);}
+.score-big.ac{color:#059669;} .score-big.wa{color:#dc2626;} .score-big.pa{color:#d97706;}
+
+.tc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;margin-bottom:14px;}
+.tc-btn{width:52px;height:52px;border-radius:10px;border:none;cursor:pointer;font-size:.78rem;font-weight:700;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.tc-pass{background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;}
+.tc-fail{background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;}
+.tc-btn.selected{transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.15);}
+
+.tc-detail{background:var(--blue-frost);border:1.5px solid var(--blue-pale);border-radius:12px;padding:16px;font-size:.85rem;}
+.tc-detail-row{margin-bottom:10px;}
+.tc-detail-lbl{font-weight:700;font-size:.77rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);margin-bottom:4px;}
+.tc-detail-val{font-family:'Courier New',monospace;background:white;border:1.5px solid var(--blue-pale);border-radius:8px;padding:8px 12px;white-space:pre-wrap;max-height:120px;overflow:auto;}
+.tc-detail-val.err{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.tc-detail-val.ok{background:#f0fdf4;border-color:#6ee7b7;color:#065f46;}
+
+.hist-list{display:flex;flex-direction:column;gap:8px;}
+.hist-item{padding:12px 15px;background:white;border:1.5px solid var(--blue-pale);border-radius:10px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s;}
+.hist-item:hover{border-color:var(--blue-light);box-shadow:0 2px 10px rgba(44,123,229,.10);}
+.hist-badge{padding:4px 10px;border-radius:8px;font-size:.73rem;font-weight:700;white-space:nowrap;}
+.b-ac{background:#d1fae5;color:#065f46;} .b-wa{background:#fee2e2;color:#991b1b;}
+.b-pa{background:#fef3c7;color:#92400e;} .b-err{background:#fef2f2;color:#991b1b;}
+.b-pend{background:#ede9fe;color:#5b21b6;}
+.hist-meta{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+.hist-score{font-size:1.1rem;font-weight:800;margin-left:auto;color:var(--blue-mid);}
+
+.spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+.empty-ico{font-size:42px;margin-bottom:10px;}
+.empty p{font-size:.88rem;}
+
+.toast{position:fixed;bottom:28px;right:28px;padding:13px 20px;border-radius:12px;font-size:.86rem;font-weight:600;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.15);animation:slideUp .3s ease;display:none;}
+.toast.show{display:block;}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.toast-ok{background:#065f46;color:white;} .toast-err{background:#991b1b;color:white;}
+
+.prob-select-list{display:flex;flex-direction:column;gap:8px;}
+.prob-select-item{padding:14px 18px;background:white;border:2px solid var(--blue-pale);border-radius:12px;cursor:pointer;transition:all .2s;}
+.prob-select-item:hover,.prob-select-item.active{border-color:var(--blue-bright);background:var(--blue-frost);}
+.prob-select-item h3{font-size:.95rem;font-weight:700;color:var(--text-dark);}
+.prob-select-item .meta{font-size:.76rem;color:var(--text-muted);margin-top:3px;}
+
+/* ── Judge Server Config Banner ── */
+#judgeConfigBanner {
+  max-width:1300px;margin:16px auto 0;padding:0 28px;position:relative;z-index:2;
+}
+.judge-config-box {
+  background:white;border:2px solid #fcd34d;border-radius:14px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  box-shadow:0 2px 12px rgba(251,191,36,.15);
+}
+.judge-status-dot {
+  width:10px;height:10px;border-radius:50%;background:#d1d5db;flex-shrink:0;
+  transition:background .3s;
+}
+.judge-status-dot.online{background:#10b981;}
+.judge-status-dot.offline{background:#ef4444;}
+.judge-config-label{font-size:.8rem;font-weight:700;color:#92400e;white-space:nowrap;}
+.judge-url-input {
+  flex:1;min-width:280px;padding:7px 12px;border:1.5px solid #fde68a;border-radius:8px;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--text-dark);
+  background:#fffbeb;outline:none;transition:border-color .2s;
+}
+.judge-url-input:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.1);}
+.btn-check{padding:7px 14px;background:#f59e0b;color:white;border:none;border-radius:8px;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-check:hover{background:#d97706;}
+.judge-status-text{font-size:.78rem;font-weight:600;color:var(--text-muted);white-space:nowrap;}
+
+/* ── AI Review ── */
+.ai-review-wrap{margin-top:16px;border-radius:12px;overflow:hidden;border:1.5px solid #c4b5fd;}
+.ai-review-hdr{background:linear-gradient(135deg,#5b21b6,#7c3aed);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.ai-review-hdr-left{display:flex;align-items:center;gap:8px;color:white;font-weight:700;font-size:.88rem;}
+.ai-review-hdr-left span{font-size:1.1rem;}
+.btn-ai{padding:7px 14px;background:white;color:#5b21b6;border:none;border-radius:8px;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btn-ai:hover:not(:disabled){background:#ede9fe;transform:translateY(-1px);}
+.btn-ai:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.ai-review-body{background:#faf5ff;padding:16px;font-size:.9rem;line-height:1.75;color:#1e1b4b;min-height:60px;}
+.ai-review-body.loading{display:flex;align-items:center;gap:10px;color:#7c3aed;font-style:italic;}
+.ai-cursor{display:inline-block;width:2px;height:1em;background:#7c3aed;animation:blink .7s step-end infinite;vertical-align:text-bottom;margin-left:1px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ai-review-body p{margin-bottom:10px;}
+.ai-review-body p:last-child{margin-bottom:0;}
+.ai-review-body strong{color:#5b21b6;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a href="index.html" class="logo">
+      <div class="logo-ico">📚</div>
+      <h1>Kho Học Liệu</h1>
+    </a>
+    <div class="hdr-info">
+      <span class="user-chip" id="userChip">👤 ...</span>
+      <a href="index.html" class="btn-back">← Quay lại</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── Judge Server Config ── -->
+<div id="judgeConfigBanner">
+  <div class="judge-config-box">
+    <div class="judge-status-dot" id="judgeStatusDot"></div>
+    <span class="judge-config-label">🖥️ Judge Server (ngrok):</span>
+    <input type="text" id="judgeUrlInput" class="judge-url-input"
+      placeholder="https://xxxx.ngrok-free.app"
+      value=""
+    />
+    <button class="btn-check" onclick="saveAndCheckJudge()">✅ Kết nối</button>
+    <span class="judge-status-text" id="judgeStatusText">Chưa kết nối</span>
+  </div>
+</div>
+
+<!-- Khi chưa chọn bài -->
+<div id="selectScreen" style="max-width:700px;margin:24px auto;padding:0 24px;position:relative;z-index:1;">
+  <div class="panel">
+    <div class="panel-hdr">
+      <h2>💻 Bài Tập Lập Trình</h2>
+      <p id="itemTitle">Đang tải...</p>
+    </div>
+    <div class="panel-body">
+      <div id="probSelectList" class="prob-select-list">
+        <div class="empty"><div class="empty-ico">⏳</div><p>Đang tải danh sách bài tập...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Màn hình làm bài -->
+<div id="mainLayout" class="layout" style="display:none;">
+
+  <!-- CỘT TRÁI: Đề bài -->
+  <div class="panel" style="max-height:calc(100vh - 80px);overflow-y:auto;position:sticky;top:80px;align-self:start;">
+    <div class="panel-hdr">
+      <h2>📄 <span id="probTitle">Đề bài</span></h2>
+      <p id="probMeta">Đang tải...</p>
+    </div>
+    <div class="panel-body">
+      <div class="p-tabs">
+        <div class="p-tab active" onclick="switchPTab(this,'pDesc')">Đề bài</div>
+        <div class="p-tab" onclick="switchPTab(this,'pHistory')">📋 Lịch sử nộp</div>
+      </div>
+
+      <div id="pDesc" class="p-panel active">
+        <div class="prob-meta" id="probTags"></div>
+        <div id="probDesc" class="prob-text"></div>
+        <div id="blockInputFmt" style="display:none">
+          <div class="section-title">📥 Định dạng Input</div>
+          <div id="probInputFmt" class="prob-text"></div>
+        </div>
+        <div id="blockOutputFmt" style="display:none">
+          <div class="section-title">📤 Định dạng Output</div>
+          <div id="probOutputFmt" class="prob-text"></div>
+        </div>
+        <div id="blockConstraints" style="display:none">
+          <div class="section-title">⚠️ Ràng buộc</div>
+          <div id="probConstraints" class="prob-text"></div>
+        </div>
+        <div id="samplesWrap"></div>
+      </div>
+
+      <div id="pHistory" class="p-panel">
+        <div id="histList" class="hist-list">
+          <div class="empty"><div class="empty-ico">📭</div><p>Bạn chưa nộp bài lần nào.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CỘT PHẢI: Editor + kết quả -->
+  <div style="display:flex;flex-direction:column;gap:18px;">
+    <div class="panel">
+      <div class="panel-hdr">
+        <h2>✏️ Viết Code</h2>
+        <p>Chọn ngôn ngữ và viết lời giải của bạn</p>
+      </div>
+      <div class="panel-body">
+        <div class="lang-bar">
+          <select id="langSel" class="lang-sel" onchange="onLangChange()">
+            <option value="python">🐍 Python 3</option>
+            <option value="javascript">🟨 JavaScript (Node.js)</option>
+            <option value="c">🔵 C (gcc)</option>
+            <option value="cpp">🔷 C++ 17 (g++)</option>
+          </select>
+          <div class="editor-actions">
+            <button class="btn btn-sec" onclick="resetCode()">🔄 Reset</button>
+            <button id="btnSubmit" class="btn btn-submit" onclick="submitCode()">
+              <span id="submitLabel">🚀 Nộp bài</span>
+            </button>
+          </div>
+        </div>
+        <div id="editorWrap">
+          <textarea id="codeArea"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultPanel" class="panel" style="display:none;">
+      <div class="panel-hdr">
+        <h2>🏆 Kết Quả Chấm</h2>
+        <p>Chi tiết từng testcase</p>
+      </div>
+      <div class="panel-body" id="resultBody"></div>
+      <!-- AI Review -->
+      <div class="panel-body" style="padding-top:0" id="aiReviewSection" style="display:none">
+        <div class="ai-review-wrap">
+          <div class="ai-review-hdr">
+            <div class="ai-review-hdr-left"><span>🤖</span> Nhận xét từ AI</div>
+            <button class="btn-ai" id="btnAiReview" onclick="requestAiReview()">✨ Nhận xét bài làm</button>
+          </div>
+          <div class="ai-review-body" id="aiReviewBody" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════
+const BACKEND_API = '/api';
+const token = () => localStorage.getItem('khl_token');
+
+// Judge Server URL (ngrok) — lưu trong localStorage để nhớ khi F5
+let JUDGE_URL = localStorage.getItem('khl_judge_url') || '';
+if (JUDGE_URL) document.getElementById('judgeUrlInput').value = JUDGE_URL;
+
+const params   = new URLSearchParams(location.search);
+const ITEM_ID  = params.get('item_id');
+const ITEM_TITLE = decodeURIComponent(params.get('title') || 'Bài tập');
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let problems = [];
+let currentProb = null;
+let editor = null;
+let selectedResult = null;
+let lastSubmitData = null; // lưu data để AI review
+
+const TEMPLATES = {
+  python:
+`# Đọc input: input() hoặc sys.stdin
+# In output: print()
+
+n = int(input())
+print(n)
+`,
+  javascript:
+`// Đọc input qua readline
+// In output: console.log()
+
+const n = parseInt(readline());
+console.log(n);
+`,
+  c:
+`#include <stdio.h>
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    printf("%d\\n", n);
+    return 0;
+}
+`,
+  cpp:
+`#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int n;
+    cin >> n;
+    cout << n << endl;
+    return 0;
+}
+`
+};
+
+// ════════════════════════════════════════════════════
+// JUDGE SERVER CONFIG
+// ════════════════════════════════════════════════════
+async function saveAndCheckJudge() {
+  const url = document.getElementById('judgeUrlInput').value.trim().replace(/\/$/, '');
+  if (!url) { showToast('Vui lòng nhập URL ngrok', 'err'); return; }
+
+  JUDGE_URL = url;
+  localStorage.setItem('khl_judge_url', url);
+
+  const dot  = document.getElementById('judgeStatusDot');
+  const text = document.getElementById('judgeStatusText');
+  dot.className  = 'judge-status-dot';
+  text.textContent = '⏳ Đang kiểm tra...';
+
+  try {
+    const res = await fetch(url + '/health', {
+      signal: AbortSignal.timeout(5000),
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      dot.className  = 'judge-status-dot online';
+      text.textContent = '✅ Đã kết nối!';
+      document.querySelector('.judge-config-box').style.borderColor = '#6ee7b7';
+      showToast('✅ Judge Server đã kết nối!', 'ok');
+    } else throw new Error('bad response');
+  } catch(e) {
+    dot.className  = 'judge-status-dot offline';
+    text.textContent = '❌ Không kết nối được';
+    document.querySelector('.judge-config-box').style.borderColor = '#fca5a5';
+    showToast('❌ Không kết nối được Judge Server. Kiểm tra ngrok và server.js có đang chạy không.', 'err');
+  }
+}
+
+// Tự động kiểm tra nếu đã có URL lưu sẵn
+window.addEventListener('load', () => {
+  if (JUDGE_URL) saveAndCheckJudge();
+});
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+(async () => {
+  if (!token()) { location.href = 'index.html'; return; }
+  const user = parseJwt(token());
+  document.getElementById('userChip').textContent = `👤 ${user?.name || 'Học sinh'}`;
+  if (!ITEM_ID) { showToast('Thiếu item_id trong URL', 'err'); return; }
+  document.getElementById('itemTitle').textContent = ITEM_TITLE;
+
+  editor = CodeMirror.fromTextArea(document.getElementById('codeArea'), {
+    mode: 'python', theme: 'dracula', lineNumbers: true,
+    indentUnit: 4, tabSize: 4, indentWithTabs: false,
+    lineWrapping: false, autoCloseBrackets: true, matchBrackets: true,
+    extraKeys: { "Tab": cm => cm.execCommand("indentMore") }
+  });
+  editor.setValue(TEMPLATES.python);
+  editor.setSize(null, 380);
+
+  await loadProblems();
+})();
+
+// ════════════════════════════════════════════════════
+// LOAD PROBLEMS (từ backend Render)
+// ════════════════════════════════════════════════════
+async function loadProblems() {
+  try {
+    const res = await backendFetch(`/problems?item_id=${ITEM_ID}`);
+    problems  = await res.json();
+
+    if (!problems.length) {
+      document.getElementById('probSelectList').innerHTML =
+        '<div class="empty"><div class="empty-ico">🚫</div><p>Chưa có bài tập lập trình nào cho mục này.</p></div>';
+      return;
+    }
+    if (problems.length === 1) { selectProblem(problems[0]); return; }
+
+    document.getElementById('probSelectList').innerHTML = problems.map((p,i) => `
+      <div class="prob-select-item" onclick="selectProblem(problems[${i}])">
+        <h3>💻 ${esc(p.title)}</h3>
+        <div class="meta">${p.sample_testcases?.length||0} ví dụ · ${p.allowed_languages?.join(', ')}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    showToast('Lỗi tải bài tập: ' + e.message, 'err');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// SELECT PROBLEM
+// ════════════════════════════════════════════════════
+function selectProblem(prob) {
+  currentProb = prob;
+  document.getElementById('selectScreen').style.display = 'none';
+  document.getElementById('mainLayout').style.display = 'grid';
+
+  document.getElementById('probTitle').textContent = prob.title;
+  document.getElementById('probMeta').textContent =
+    `⏱ ${prob.time_limit_ms}ms · 💾 ${prob.memory_limit_mb}MB · ${(prob.allowed_languages||[]).join(', ')}`;
+  document.getElementById('probDesc').textContent = prob.description;
+
+  setBlock('blockInputFmt',   'probInputFmt',   prob.input_format);
+  setBlock('blockOutputFmt',  'probOutputFmt',  prob.output_format);
+  setBlock('blockConstraints','probConstraints', prob.constraints);
+
+  document.getElementById('probTags').innerHTML = `
+    <span class="meta-tag tag-time">⏱ ${prob.time_limit_ms}ms</span>
+    <span class="meta-tag tag-mem">💾 ${prob.memory_limit_mb}MB</span>
+    ${(prob.allowed_languages||[]).map(l=>`<span class="meta-tag tag-lang">${l}</span>`).join('')}
+  `;
+
+  const samples = prob.sample_testcases || [];
+  document.getElementById('samplesWrap').innerHTML = samples.length ? `
+    <div class="section-title">🧪 Ví dụ</div>
+    ${samples.map((s,i) => `
+      <div style="margin-bottom:12px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--text-muted);margin-bottom:4px;">Ví dụ ${i+1}</div>
+        <div class="sample-pair">
+          <div>
+            <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:3px">INPUT</div>
+            <div class="io-box">${esc(s.input)}</div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:3px">OUTPUT</div>
+            <div class="io-box">${esc(s.expected)}</div>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  ` : '';
+
+  const allowed = prob.allowed_languages || [];
+  const sel = document.getElementById('langSel');
+  Array.from(sel.options).forEach(o => {
+    o.disabled = allowed.length > 0 && !allowed.includes(o.value);
+  });
+  const firstAllowed = allowed[0] || 'python';
+  sel.value = firstAllowed;
+  onLangChange();
+  loadHistory();
+}
+
+function setBlock(wrapId, textId, value) {
+  const el = document.getElementById(wrapId);
+  el.style.display = value ? '' : 'none';
+  if (value) document.getElementById(textId).textContent = value;
+}
+
+// ════════════════════════════════════════════════════
+// EDITOR
+// ════════════════════════════════════════════════════
+function onLangChange() {
+  const lang = document.getElementById('langSel').value;
+  const modeMap = { python:'python', javascript:'javascript', c:'text/x-csrc', cpp:'text/x-c++src' };
+  editor.setOption('mode', modeMap[lang] || 'python');
+  editor.setValue(TEMPLATES[lang] || '');
+}
+
+function resetCode() {
+  const lang = document.getElementById('langSel').value;
+  editor.setValue(TEMPLATES[lang] || '');
+  showToast('Đã reset code về mẫu', 'ok');
+}
+
+// ════════════════════════════════════════════════════
+// SUBMIT — gọi Judge Server local, lưu kết quả lên Render
+// ════════════════════════════════════════════════════
+async function submitCode() {
+  if (!currentProb) return;
+
+  const source_code = editor.getValue().trim();
+  if (!source_code) { showToast('Code không được để trống!', 'err'); return; }
+
+  const language = document.getElementById('langSel').value;
+
+  // Kiểm tra Judge Server
+  if (!JUDGE_URL) {
+    showToast('⚠️ Bạn chưa nhập URL Judge Server (ngrok) ở trên!', 'err');
+    document.getElementById('judgeUrlInput').focus();
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  document.getElementById('submitLabel').innerHTML = '<span class="spinner"></span> Đang chấm...';
+
+  document.getElementById('resultPanel').style.display = '';
+  document.getElementById('resultBody').innerHTML = renderVerdict({ status: 'judging', score: 0 });
+
+  try {
+    // ── BƯỚC 1: Lấy testcase từ backend Render ──
+    const probRes  = await backendFetch(`/problems/${currentProb.id}`);
+    const probData = await probRes.json();
+    const testcases = (probData.testcases || []).map(tc => ({
+      input:     tc.input    || '',
+      expected:  tc.expected || tc.expected_output || '',
+      is_sample: tc.is_sample,
+      weight:    tc.score_weight || tc.weight || 1
+    }));
+
+    if (!testcases.length) {
+      showToast('⚠️ Bài này chưa có testcase. Admin cần thêm testcase trước.', 'err');
+      document.getElementById('resultBody').innerHTML = `<div class="verdict verdict-err"><span class="verdict-ico">⚠️</span><div class="verdict-text"><h3>Chưa có testcase</h3><div class="verdict-sub">Admin cần thêm testcase cho bài này</div></div></div>`;
+      return;
+    }
+
+    // ── BƯỚC 2: Gửi code lên Judge Server local (qua ngrok) ──
+    const judgeRes = await fetch(JUDGE_URL + '/judge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'   // bỏ qua trang cảnh báo của ngrok free
+      },
+      body: JSON.stringify({ code: source_code, language, testcases }),
+      signal: AbortSignal.timeout(30000)
+    });
+
+    if (!judgeRes.ok) throw new Error('Judge Server lỗi: ' + judgeRes.status);
+    const judgeData = await judgeRes.json();
+
+    // ── BƯỚC 3: Lưu kết quả lên backend Render ──
+    const saveRes = await backendFetch('/submissions', 'POST', {
+      problem_id:  currentProb.id,
+      language,
+      source_code,
+      status:       judgeData.status?.toLowerCase().replace(/ /g,'_') || 'wrong_answer',
+      score:        null,
+      passed_tests: judgeData.passed ?? 0,
+      total_tests:  judgeData.total  ?? testcases.length,
+      results:      (judgeData.results || []).map(r => ({
+        passed:        r.passed,
+        exec_time_ms:  r.time   || 0,
+        actual_output: r.actual || '',
+        expected:      r.expected || null,
+        is_sample:     r.is_sample,
+        error_detail:  r.status === 'Time Limit Exceeded' ? 'Time Limit Exceeded'
+                     : r.status === 'Runtime Error'       ? 'Runtime Error'
+                     : null
+      }))
+    });
+
+    // Build kết quả để hiển thị
+    const displayData = {
+      status:       judgeData.status?.toLowerCase().replace(/ /g,'_') || 'wrong_answer',
+      score:        null,
+      passed_tests: judgeData.passed ?? 0,
+      total_tests:  judgeData.total  ?? testcases.length,
+      error_msg:    judgeData.detail || null,
+      results:      (judgeData.results || []).map((r, i) => ({
+        passed:        r.passed,
+        exec_time_ms:  r.time || 0,
+        actual_output: r.actual || '',
+        expected:      r.expected || null,
+        is_sample:     testcases[i]?.is_sample,
+        input:         testcases[i]?.is_sample ? testcases[i]?.input : null,
+        error_detail:  r.status === 'Time Limit Exceeded' ? 'Time Limit Exceeded'
+                     : r.status === 'Runtime Error'       ? 'Runtime Error'
+                     : null
+      }))
+    };
+
+    renderResult(displayData);
+    lastSubmitData = {
+      probTitle:   currentProb.title,
+      probDesc:    currentProb.description || '',
+      language,
+      source_code,
+      passed:      displayData.passed_tests ?? 0,
+      total:       displayData.total_tests  ?? 0,
+      status:      displayData.status,
+      results:     displayData.results || []
+    };
+    // Hiện AI review section, reset nút
+    document.getElementById('aiReviewSection').style.display = '';
+    document.getElementById('aiReviewBody').style.display = 'none';
+    document.getElementById('btnAiReview').disabled = false;
+    document.getElementById('btnAiReview').textContent = '✨ Nhận xét bài làm';
+    loadHistory();
+
+  } catch(e) {
+    let msg = e.message || 'Lỗi không xác định';
+    if (msg.includes('timeout') || msg.includes('abort')) msg = 'Judge Server không phản hồi (timeout 30s). Kiểm tra server và ngrok đang chạy.';
+    if (msg.includes('Failed to fetch')) msg = 'Không kết nối được Judge Server. Kiểm tra URL ngrok và server có đang chạy không.';
+    showToast('❌ ' + msg, 'err');
+    document.getElementById('resultBody').innerHTML = `
+      <div class="verdict verdict-err"><span class="verdict-ico">❌</span>
+        <div class="verdict-text"><h3>Lỗi kết nối</h3>
+        <div class="verdict-sub">${esc(msg)}</div></div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('submitLabel').textContent = '🚀 Nộp bài';
+  }
+}
+
+// ════════════════════════════════════════════════════
+// RENDER RESULT
+// ════════════════════════════════════════════════════
+function renderVerdict(sub) {
+  const verdictMap = {
+    accepted:    { cls:'ac',      ico:'✅', label:'Accepted – Chính xác!' },
+    wrong_answer:{ cls:'wa',      ico:'❌', label:'Wrong Answer – Sai kết quả' },
+    partial:     { cls:'pa',      ico:'⚠️', label:'Partial – Đúng một phần' },
+    error:       { cls:'err',     ico:'🔴', label:'Runtime Error' },
+    compile_error:{ cls:'err',    ico:'🔴', label:'Compile Error' },
+    judging:     { cls:'judging', ico:'⏳', label:'Đang chấm bài...' },
+    pending:     { cls:'judging', ico:'⏳', label:'Chờ chấm...' },
+  };
+  const v = verdictMap[sub.status] || verdictMap.wrong_answer;
+  return `
+    <div class="verdict verdict-${v.cls}">
+      <span class="verdict-ico">${v.ico}</span>
+      <div class="verdict-text">
+        <h3>${v.label}</h3>
+        <div class="verdict-sub">${sub.passed_tests||0}/${sub.total_tests||0} testcase đúng</div>
+      </div>
+    </div>`;
+}
+
+function renderResult(data) {
+  const results = data.results || [];
+  let html = renderVerdict(data);
+
+  if (data.error_msg) {
+    html += `<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-family:monospace;font-size:.83rem;color:#991b1b;white-space:pre-wrap;">${esc(data.error_msg)}</div>`;
+  }
+
+  if (results.length > 0) {
+    html += `<div style="font-size:.82rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;">Kết quả testcase</div>`;
+    html += `<div class="tc-grid" id="tcGrid">`;
+    results.forEach((r, i) => {
+      const cls = r.passed ? 'tc-pass' : 'tc-fail';
+      html += `<button class="tc-btn ${cls}" onclick="showTcDetail(${i})" id="tcBtn_${i}">
+        <span>${r.passed ? '✓' : (r.error_detail ? '⚡' : '✗')}</span>
+        <span>#${i+1}</span>
+      </button>`;
+    });
+    html += `</div>`;
+    html += `<div id="tcDetail" class="tc-detail" style="display:none"></div>`;
+    selectedResult = results;
+  }
+
+  document.getElementById('resultBody').innerHTML = html;
+  document.getElementById('resultPanel').style.display = '';
+  document.getElementById('resultPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function showTcDetail(idx) {
+  if (!selectedResult) return;
+  const r = selectedResult[idx];
+  document.querySelectorAll('.tc-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.getElementById('tcBtn_' + idx);
+  if (btn) btn.classList.add('selected');
+
+  const detail = document.getElementById('tcDetail');
+  detail.style.display = '';
+  const badge = r.passed
+    ? `<span style="background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:8px;font-size:.73rem;font-weight:700">✓ PASSED</span>`
+    : `<span style="background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:8px;font-size:.73rem;font-weight:700">✗ FAILED</span>`;
+
+  // Lấy actual output — hỗ trợ cả 2 tên field
+  const actualOut = r.actual_output || r.actual || '';
+  const expectedOut = r.expected || '';
+  const inputVal = r.input || '';
+
+  detail.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
+      <strong>Testcase #${idx+1} ${r.is_sample ? '(Ví dụ)' : '(Ẩn)'}</strong>
+      ${badge}
+      <span style="font-size:.75rem;color:var(--text-muted)">${r.exec_time_ms || 0}ms</span>
+    </div>
+    ${inputVal ? `
+      <div class="tc-detail-row">
+        <div class="tc-detail-lbl">📥 Input</div>
+        <div class="tc-detail-val">${esc(inputVal)}</div>
+      </div>` : (r.is_sample ? '' : `<div class="tc-detail-row"><div class="tc-detail-val" style="color:var(--text-muted);font-style:italic">📌 Testcase ẩn – Input không hiển thị</div></div>`)}
+    ${expectedOut ? `
+      <div class="tc-detail-row">
+        <div class="tc-detail-lbl">✅ Output mong đợi</div>
+        <div class="tc-detail-val ok">${esc(expectedOut)}</div>
+      </div>` : ''}
+    <div class="tc-detail-row">
+      <div class="tc-detail-lbl">📤 Output của bạn</div>
+      <div class="tc-detail-val ${r.passed?'ok':'err'}">${actualOut ? esc(actualOut) : '(trống – không có output)'}</div>
+    </div>
+    ${r.error_detail ? `
+      <div class="tc-detail-row">
+        <div class="tc-detail-lbl">⚡ Lỗi</div>
+        <div class="tc-detail-val err">${esc(r.error_detail)}</div>
+      </div>` : ''}
+  `;
+}
+
+// ════════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════════
+async function loadHistory() {
+  if (!currentProb) return;
+  try {
+    const res  = await backendFetch(`/submissions?problem_id=${currentProb.id}`);
+    const data = await res.json();
+    const el   = document.getElementById('histList');
+    if (!data.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div><p>Bạn chưa nộp bài lần nào.</p></div>';
+      return;
+    }
+    const statusMap = { accepted:'b-ac', wrong_answer:'b-wa', partial:'b-pa', error:'b-err', judging:'b-pend', pending:'b-pend' };
+    const statusLabel = { accepted:'✅ Accepted', wrong_answer:'❌ Wrong Answer', partial:'⚠️ Partial', error:'🔴 Error', judging:'⏳ Judging', pending:'⏳ Pending' };
+    el.innerHTML = data.map(s => `
+      <div class="hist-item" onclick="loadSubmissionDetail('${s.id}')">
+        <div>
+          <span class="hist-badge ${statusMap[s.status]||'b-pend'}">${statusLabel[s.status]||s.status}</span>
+          <div class="hist-meta">${s.language} · ${s.passed_tests}/${s.total_tests} tests · ${formatDate(s.submitted_at)}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('loadHistory:', e); }
+}
+
+async function loadSubmissionDetail(subId) {
+  try {
+    const res  = await backendFetch(`/submissions/${subId}`);
+    const data = await res.json();
+    renderResult(data);
+    if (data.source_code) {
+      document.getElementById('langSel').value = data.language;
+      onLangChange();
+      editor.setValue(data.source_code || '');
+    }
+    switchPTab(document.querySelector('.p-tab'), 'pDesc');
+  } catch(e) { showToast('Không tải được chi tiết submission', 'err'); }
+}
+
+// ════════════════════════════════════════════════════
+// AI REVIEW — gọi Anthropic API, stream nhận xét
+// ════════════════════════════════════════════════════
+async function requestAiReview() {
+  if (!lastSubmitData) return;
+
+  const btn  = document.getElementById('btnAiReview');
+  const body = document.getElementById('aiReviewBody');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang nhận xét...';
+  body.style.display = '';
+  body.className = 'ai-review-body loading';
+  body.innerHTML = '<span>🤖</span><span>AI đang đọc bài làm của bạn…</span>';
+
+  const { probTitle, probDesc, language, source_code, passed, total, status, results } = lastSubmitData;
+  const failedTcs = results.filter(r => !r.passed);
+  const passedCount = passed;
+  const totalCount  = total;
+
+  const failedSummary = failedTcs.length
+    ? failedTcs.slice(0, 5).map((r, i) => {
+        const tcNum = results.indexOf(r) + 1;
+        const parts = [`- Testcase #${tcNum} (${r.is_sample ? 'mẫu' : 'ẩn'}): FAILED`];
+        if (r.error_detail) parts.push(`  Lỗi: ${r.error_detail}`);
+        if (r.actual_output) parts.push(`  Output thực tế: ${r.actual_output.slice(0,100)}`);
+        if (r.expected)      parts.push(`  Output mong đợi: ${r.expected.slice(0,100)}`);
+        return parts.join('\n');
+      }).join('\n')
+    : 'Tất cả testcase đều đúng!';
+
+  const prompt = `Bạn là giáo viên lập trình thân thiện, đang nhận xét bài làm của học sinh.
+
+**Thông tin bài tập:** ${probTitle}
+${probDesc ? `Mô tả: ${probDesc.slice(0, 300)}` : ''}
+
+**Kết quả chấm:**
+- Số testcase đúng: ${passedCount}/${totalCount}
+- Trạng thái: ${status}
+${failedTcs.length ? `\n**Testcase sai:**\n${failedSummary}` : ''}
+
+**Code của học sinh (${language}):**
+\`\`\`${language}
+${source_code.slice(0, 1500)}
+\`\`\`
+
+Hãy nhận xét bài làm theo các ý sau (ngắn gọn, thân thiện, dùng tiếng Việt):
+1. **Nhận xét chung** về kết quả đạt được
+2. **Điểm tốt** trong code (nếu có)
+3. **Vấn đề cần sửa** (nếu sai testcase, gợi ý hướng sửa — không đưa code đáp án)
+4. **Lời khuyên** để cải thiện
+
+Viết ngắn gọn, tối đa 200 từ.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error('API lỗi: ' + res.status);
+
+    body.className = 'ai-review-body';
+    body.innerHTML = '<span class="ai-cursor"></span>';
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let text = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') break;
+        try {
+          const json = JSON.parse(raw);
+          const delta = json?.delta?.text || '';
+          if (delta) {
+            text += delta;
+            // Render markdown đơn giản: **bold**, xuống dòng
+            body.innerHTML = text
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\n\n/g, '</p><p>')
+              .replace(/\n/g, '<br>')
+              .replace(/^/, '<p>') + '</p>'
+              + '<span class="ai-cursor"></span>';
+          }
+        } catch {}
+      }
+    }
+
+    // Xóa cursor khi xong
+    body.innerHTML = body.innerHTML.replace('<span class="ai-cursor"></span>', '');
+    btn.textContent = '🔄 Nhận xét lại';
+    btn.disabled = false;
+
+  } catch(e) {
+    body.className = 'ai-review-body';
+    body.innerHTML = `<span style="color:#991b1b">❌ Không thể kết nối AI: ${esc(e.message)}</span>`;
+    btn.textContent = '✨ Thử lại';
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════
+function switchPTab(el, tabId) {
+  document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.p-panel').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById(tabId)?.classList.add('active');
+}
+
+async function backendFetch(path, method = 'GET', body) {
+  const opts = {
+    method,
+    headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(BACKEND_API + path, opts);
+}
+
+function parseJwt(t) {
+  try { return JSON.parse(atob(t.split('.')[1])); } catch { return {}; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' });
+}
+
+function showToast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast toast-${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

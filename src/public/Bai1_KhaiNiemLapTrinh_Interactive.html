@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bài 1: Khái Niệm Lập Trình</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --primary: #1565C0;
+  --primary-light: #42A5F5;
+  --primary-dark: #0D47A1;
+  --accent: #FF6F00;
+  --accent-light: #FFB300;
+  --success: #2E7D32;
+  --success-light: #66BB6A;
+  --danger: #C62828;
+  --danger-light: #EF5350;
+  --bg: #E3F2FD;
+  --card: #fff;
+  --text: #1A237E;
+  --muted: #546E7A;
+  --border: #BBDEFB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #E3F2FD 0%, #E8EAF6 100%);
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 20px rgba(13,71,161,0.4);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-icon {
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; border: 2px solid rgba(255,255,255,0.25);
+}
+.topbar-info { flex: 1; }
+.topbar-info h1 { font-family: 'Baloo 2', cursive; font-size: 1.15rem; font-weight: 800; }
+.topbar-info p { font-size: 0.72rem; opacity: 0.65; margin-top: 1px; letter-spacing: 0.5px; }
+.score-display {
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-weight: 800; font-size: 0.9rem;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+  background: rgba(255,255,255,0.25);
+  height: 5px;
+  border-radius: 0;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #FFB300, #FF6F00);
+  width: 0%;
+  transition: width 0.6s ease;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── MAIN ── */
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ── SLIDE ── */
+.slide {
+  display: none;
+  animation: slideIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.slide.active { display: block; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── SECTION HEADER ── */
+.section-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--primary); color: white;
+  padding: 5px 16px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 800;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* ── CONTENT CARD ── */
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 32px rgba(13,71,161,0.10);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.card-header {
+  background: linear-gradient(135deg, #1565C0, #1E88E5);
+  color: white;
+  padding: 18px 24px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.25rem; font-weight: 800;
+  display: flex; align-items: center; gap: 10px;
+}
+.card-body { padding: 22px 24px; }
+
+/* ── POEM BOX ── */
+.poem-box {
+  background: linear-gradient(135deg, #E8EAF6, #E3F2FD);
+  border: 2px solid #C5CAE9;
+  border-radius: 14px;
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 2;
+  color: var(--primary-dark);
+  font-weight: 700;
+  position: relative;
+  margin-bottom: 18px;
+}
+.poem-box::before { content: '❝'; font-size: 3rem; color: #C5CAE9; position: absolute; top: -4px; left: 12px; line-height: 1; }
+.poem-box::after  { content: '❞'; font-size: 3rem; color: #C5CAE9; position: absolute; bottom: -16px; right: 12px; line-height: 1; }
+
+/* ── STEPS ── */
+.steps { display: flex; flex-direction: column; gap: 12px; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: #F8FBFF;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: all 0.3s;
+}
+.step-item.highlight {
+  background: linear-gradient(135deg, #E3F2FD, #E8F5E9);
+  border-color: var(--primary-light);
+  transform: translateX(4px);
+  box-shadow: 0 4px 14px rgba(13,71,161,0.12);
+}
+.step-num {
+  min-width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.85rem; flex-shrink: 0;
+}
+.step-text { font-weight: 600; font-size: 0.9rem; line-height: 1.55; }
+.step-calc {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 800;
+  background: var(--bg);
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+}
+
+/* ── DEFINITION BOXES ── */
+.def-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 0; }
+@media(max-width: 600px) { .def-grid { grid-template-columns: 1fr; } }
+.def-box {
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.def-box.blue {
+  background: linear-gradient(135deg, #1565C0, #1E88E5);
+  color: white;
+  box-shadow: 0 6px 20px rgba(21,101,192,0.35);
+}
+.def-box.orange {
+  background: linear-gradient(135deg, #E65100, #FF8F00);
+  color: white;
+  box-shadow: 0 6px 20px rgba(230,81,0,0.35);
+}
+.def-box-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.1rem; font-weight: 800;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.def-box p { font-size: 0.84rem; opacity: 0.92; line-height: 1.6; font-weight: 600; }
+
+/* ── QUIZ CARD ── */
+.quiz-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 32px rgba(13,71,161,0.12);
+  border: 2px solid #FFF3E0;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.quiz-header {
+  background: linear-gradient(135deg, #E65100, #FF8F00);
+  color: white;
+  padding: 16px 22px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1rem; font-weight: 800;
+}
+.quiz-body { padding: 22px; }
+.quiz-question {
+  font-size: 1rem; font-weight: 700;
+  color: var(--text); margin-bottom: 18px;
+  line-height: 1.6;
+  background: #FFF8E1;
+  border-left: 4px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  width: 100%;
+  padding: 13px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: #F8FBFF;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 12px;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--primary-light);
+  background: var(--bg);
+  transform: translateX(4px);
+}
+.option-btn.correct {
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  border-color: var(--success-light);
+  color: var(--success);
+}
+.option-btn.wrong {
+  background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+  border-color: var(--danger-light);
+  color: var(--danger);
+}
+.option-btn:disabled { cursor: default; }
+.opt-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; flex-shrink: 0;
+  color: var(--primary);
+}
+.option-btn.correct .opt-icon { background: var(--success-light); color: white; }
+.option-btn.wrong   .opt-icon { background: var(--danger-light);  color: white; }
+
+/* ── FEEDBACK ── */
+.feedback {
+  display: none;
+  margin-top: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.6;
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+.feedback.ok  { background: #E8F5E9; color: var(--success); border: 1.5px solid #A5D6A7; }
+.feedback.err { background: #FFEBEE; color: var(--danger);  border: 1.5px solid #EF9A9A; }
+.feedback.show { display: block; }
+
+/* ── SORT ACTIVITY ── */
+.sort-container { display: flex; flex-direction: column; gap: 10px; }
+.sort-item {
+  display: flex; align-items: center; gap: 12px;
+  background: #F8FBFF;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s;
+}
+.sort-item:active { cursor: grabbing; transform: scale(1.02); box-shadow: 0 6px 20px rgba(13,71,161,0.2); }
+.sort-item.dragging { opacity: 0.5; }
+.sort-item.drag-over { border-color: var(--primary); background: var(--bg); }
+.drag-handle { font-size: 18px; opacity: 0.4; }
+.sort-num {
+  min-width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.78rem; flex-shrink: 0;
+}
+.sort-text { font-size: 0.88rem; font-weight: 700; }
+
+/* ── FILL BLANK ── */
+.fill-question {
+  font-size: 0.95rem; font-weight: 700; color: var(--text);
+  line-height: 2.2; margin-bottom: 14px;
+}
+.fill-blank {
+  display: inline-block;
+  min-width: 130px;
+  border-bottom: 3px solid var(--primary);
+  padding: 2px 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem; font-weight: 800;
+  color: var(--primary);
+  background: transparent;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.fill-blank:focus { border-color: var(--accent); }
+.fill-blank.correct-ans { border-color: var(--success); color: var(--success); }
+.fill-blank.wrong-ans   { border-color: var(--danger);  color: var(--danger);  }
+
+/* ── NAV BUTTONS ── */
+.nav-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 22px; gap: 10px; flex-wrap: wrap;
+}
+.btn-nav {
+  padding: 12px 26px;
+  border: none; border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-next {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  box-shadow: 0 4px 16px rgba(21,101,192,0.35);
+}
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(21,101,192,0.45); }
+.btn-prev {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--border);
+}
+.btn-prev:hover { border-color: var(--primary-light); background: var(--bg); }
+.btn-check {
+  background: linear-gradient(135deg, #E65100, #FF8F00);
+  color: white;
+  box-shadow: 0 4px 16px rgba(230,81,0,0.35);
+}
+.btn-check:hover { transform: translateY(-2px); }
+.slide-counter {
+  font-size: 0.78rem; font-weight: 800;
+  color: var(--muted);
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+}
+
+/* ── INFO HIGHLIGHT ── */
+.highlight-box {
+  background: linear-gradient(135deg, #E3F2FD, #EDE7F6);
+  border: 2px solid #90CAF9;
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.7;
+  margin-top: 14px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.highlight-box .hi-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+
+/* ── CUPS VISUAL ── */
+.cups-visual {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.cup-item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.cup-label {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.3rem; font-weight: 800;
+  color: var(--primary);
+}
+.cup {
+  width: 70px; height: 85px;
+  border: 3px solid #90A4AE;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  position: relative;
+  overflow: hidden;
+  background: #ECEFF1;
+}
+.cup-liquid {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 65%;
+  transition: background 0.6s, height 0.6s;
+}
+.cup-name {
+  font-size: 0.75rem; font-weight: 800;
+  color: var(--muted);
+}
+.cup-step-btn {
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white; border: none; border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 800;
+  cursor: pointer; transition: all 0.2s;
+  margin: 0 4px;
+}
+.cup-step-btn:hover { transform: translateY(-1px); }
+.cup-step-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.cup-step-info {
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-top: 8px;
+}
+
+/* ── FINAL SCORE ── */
+.final-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 12px 48px rgba(13,71,161,0.18);
+  padding: 36px;
+  text-align: center;
+}
+.final-emoji { font-size: 4rem; margin-bottom: 12px; display: block; animation: bounce 1s infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+.final-title { font-family: 'Baloo 2', cursive; font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+.final-score { font-size: 3.5rem; font-weight: 900; color: var(--accent); margin: 10px 0; }
+.final-msg { font-size: 1rem; font-weight: 700; color: var(--muted); margin-bottom: 24px; }
+.final-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  margin-bottom: 26px;
+}
+.final-stat {
+  background: var(--bg); border-radius: 14px; padding: 14px;
+}
+.final-stat-num { font-size: 1.6rem; font-weight: 900; color: var(--primary); }
+.final-stat-lbl { font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.btn-restart {
+  padding: 13px 32px;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white; border: none; border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 18px rgba(13,71,161,0.3);
+}
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(13,71,161,0.4); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 20px; border-radius: 12px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88rem;
+  color: white; z-index: 9999;
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok  { background: var(--success); }
+.toast.err { background: var(--danger);  }
+.toast.info { background: var(--primary); }
+
+/* ── CONFETTI ── */
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 9998; overflow: hidden; }
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">💻</div>
+  <div class="topbar-info">
+    <h1>Bài 1: Khái Niệm Lập Trình</h1>
+    <p>Giáo viên: Hoàng Đăng Quang • Tin học lớp 4–5</p>
+  </div>
+  <div class="score-display">⭐ <span id="scoreVal">0</span> điểm</div>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<main>
+
+<!-- ════════════════ SLIDE 1: MỞ ĐẦU ════════════════ -->
+<div class="slide active" id="slide-1">
+  <div class="section-badge">📖 Giới thiệu bài học</div>
+  <div class="card">
+    <div class="card-header">🎯 BÀI 1: KHÁI NIỆM LẬP TRÌNH</div>
+    <div class="card-body">
+      <p style="font-size:0.93rem;font-weight:700;color:var(--muted);margin-bottom:18px;line-height:1.7;">Trong bài học hôm nay, chúng ta sẽ khám phá 4 nội dung chính:</p>
+      <div class="steps">
+        <div class="step-item highlight">
+          <div class="step-num">1</div>
+          <div class="step-text">🌍 Thuật toán trong cuộc sống hàng ngày</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text">📐 Bài toán và Thuật toán là gì?</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">🧩 Vận dụng thuật toán trong thực tế</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text">💻 Thuật toán và Chương trình máy tính</div>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:20px;">
+        <span class="hi-icon">💡</span>
+        <span>Bài học có <strong>5 câu hỏi tương tác</strong> — trả lời đúng sẽ được cộng điểm thưởng. Hãy cố gắng nhé! 🎉</span>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <div></div>
+    <span class="slide-counter" id="sc-1">1 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(2)">Bắt đầu học ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 2: BÀI THƠ ════════════════ -->
+<div class="slide" id="slide-2">
+  <div class="section-badge">📌 Phần 1 – Thuật toán trong cuộc sống</div>
+  <div class="card">
+    <div class="card-header">📜 Bài thơ về Diện tích Hình Thang</div>
+    <div class="card-body">
+      <div class="poem-box">
+        Muốn tìm diện tích hình thang<br>
+        Đáy lớn đáy nhỏ ta mang cộng vào<br>
+        Rồi đem nhân với chiều cao<br>
+        Chia đôi lấy nửa thế nào cũng ra
+      </div>
+      <div class="highlight-box">
+        <span class="hi-icon">🔍</span>
+        <div>Đây là một <strong>thuật toán</strong> được diễn đạt bằng thơ! Thuật toán là một <em>quy trình từng bước</em> để giải quyết vấn đề.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-card">
+    <div class="quiz-header">❓ Câu hỏi 1 / 5</div>
+    <div class="quiz-body">
+      <div class="quiz-question">Bài thơ trên cho biết cách giải quyết bài toán nào?</div>
+      <div class="options">
+        <button class="option-btn" onclick="answer(this,'q1',false,'A')">
+          <span class="opt-icon">A</span> Tính diện tích hình vuông
+        </button>
+        <button class="option-btn" onclick="answer(this,'q1',true,'B')">
+          <span class="opt-icon">B</span> Tính diện tích hình thang
+        </button>
+        <button class="option-btn" onclick="answer(this,'q1',false,'C')">
+          <span class="opt-icon">C</span> Tính chu vi hình thang
+        </button>
+        <button class="option-btn" onclick="answer(this,'q1',false,'D')">
+          <span class="opt-icon">D</span> Tính diện tích hình tròn
+        </button>
+      </div>
+      <div class="feedback" id="fb-q1"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(1)">◀ Quay lại</button>
+    <span class="slide-counter">2 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(3)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 3: CÁC BƯỚC TÍNH ════════════════ -->
+<div class="slide" id="slide-3">
+  <div class="section-badge">📌 Phần 1 – Các bước thực hiện</div>
+  <div class="card">
+    <div class="card-header">📐 Tính Diện Tích Hình Thang</div>
+    <div class="card-body">
+      <p style="margin-bottom:16px;font-size:0.88rem;font-weight:700;color:var(--muted);">Cho: Đáy lớn AD = 7, Đáy nhỏ BC = 4, Đường cao BE = 3</p>
+      <div style="text-align:center;background:linear-gradient(135deg,#E3F2FD,#E8EAF6);border-radius:14px;padding:16px;margin-bottom:18px;">
+        <svg width="220" height="120" viewBox="0 0 220 120">
+          <polygon points="10,100 50,20 170,20 210,100" fill="#BBDEFB" stroke="#1565C0" stroke-width="2.5"/>
+          <line x1="50" y1="20" x2="50" y2="100" stroke="#FF6F00" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="110" y="14" text-anchor="middle" font-size="12" fill="#1565C0" font-weight="bold">4 (BC)</text>
+          <text x="110" y="115" text-anchor="middle" font-size="12" fill="#1565C0" font-weight="bold">7 (AD)</text>
+          <text x="36" y="65" font-size="11" fill="#E65100" font-weight="bold">3</text>
+        </svg>
+      </div>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            Lấy đáy lớn cộng với đáy nhỏ
+            <div class="step-calc">7 + 4 = 11</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            Lấy tổng 2 đáy nhân với chiều cao
+            <div class="step-calc">11 × 3 = 33</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            Lấy kết quả chia 2 → Diện tích hình thang
+            <div class="step-calc">33 ÷ 2 = <strong style="color:var(--accent)">16.5</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 2: SORT -->
+  <div class="quiz-card">
+    <div class="quiz-header">🔀 Câu hỏi 2 / 5 – Sắp xếp đúng thứ tự</div>
+    <div class="quiz-body">
+      <div class="quiz-question">Kéo thả để sắp xếp các bước tính diện tích hình thang theo đúng thứ tự:</div>
+      <div class="sort-container" id="sortQ2">
+        <div class="sort-item" draggable="true" data-order="2">
+          <span class="drag-handle">⠿</span>
+          <div class="sort-num">?</div>
+          <div class="sort-text">Lấy tổng 2 đáy nhân với chiều cao</div>
+        </div>
+        <div class="sort-item" draggable="true" data-order="3">
+          <span class="drag-handle">⠿</span>
+          <div class="sort-num">?</div>
+          <div class="sort-text">Lấy kết quả chia đôi → diện tích</div>
+        </div>
+        <div class="sort-item" draggable="true" data-order="1">
+          <span class="drag-handle">⠿</span>
+          <div class="sort-num">?</div>
+          <div class="sort-text">Lấy đáy lớn cộng với đáy nhỏ</div>
+        </div>
+      </div>
+      <div class="feedback" id="fb-q2"></div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-nav btn-check" onclick="checkSort()">✅ Kiểm tra thứ tự</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(2)">◀ Quay lại</button>
+    <span class="slide-counter">3 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(4)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 4: ĐỊNH NGHĨA ════════════════ -->
+<div class="slide" id="slide-4">
+  <div class="section-badge">📌 Phần 2 – Bài toán & Thuật toán</div>
+  <div class="card">
+    <div class="card-header">📘 Bài Toán và Thuật Toán là gì?</div>
+    <div class="card-body">
+      <div class="def-grid">
+        <div class="def-box blue">
+          <div class="def-box-title">📋 Bài toán</div>
+          <p>Một vấn đề cần giải quyết được phát biểu chặt chẽ và nêu rõ ràng <strong>đầu vào</strong> là gì, <strong>đầu ra</strong> là gì.</p>
+        </div>
+        <div class="def-box orange">
+          <div class="def-box-title">⚙️ Thuật toán</div>
+          <p>Một quy trình chặt chẽ gồm một số bước, có chỉ rõ <strong>trình tự thực hiện</strong> để giải quyết một bài toán.</p>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:16px;">
+        <span class="hi-icon">🔑</span>
+        <div>Mỗi thuật toán phải có: <strong>Đầu vào (Input)</strong> → <strong>Các bước xử lý</strong> → <strong>Đầu ra (Output)</strong> và điều kiện kết thúc rõ ràng.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ 3: FILL BLANK -->
+  <div class="quiz-card">
+    <div class="quiz-header">✏️ Câu hỏi 3 / 5 – Điền vào chỗ trống</div>
+    <div class="quiz-body">
+      <div class="quiz-question">Hoàn thành các câu sau bằng cách điền từ đúng:</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="fill-question">
+          Một vấn đề cần giải quyết được phát biểu rõ ràng đầu vào và đầu ra gọi là
+          <input class="fill-blank" id="fill1" placeholder="???"/>
+        </div>
+        <div class="fill-question">
+          Một quy trình gồm các bước có thứ tự để giải quyết bài toán gọi là
+          <input class="fill-blank" id="fill2" placeholder="???"/>
+        </div>
+      </div>
+      <div class="feedback" id="fb-q3"></div>
+      <div style="margin-top:14px;">
+        <button class="btn-nav btn-check" onclick="checkFill()">✅ Kiểm tra đáp án</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(3)">◀ Quay lại</button>
+    <span class="slide-counter">4 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(5)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 5: LY SỮA ════════════════ -->
+<div class="slide" id="slide-5">
+  <div class="section-badge">📌 Phần 3 – Vận dụng thuật toán</div>
+  <div class="card">
+    <div class="card-header">☕ Bài toán đổi Sữa – Cà Phê</div>
+    <div class="card-body">
+      <p style="font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.7;font-size:0.9rem;">
+        <strong>Bài toán:</strong> Cho một ly A đựng sữa và một ly B đựng cà phê. Hãy đổi sữa sang ly B và cà phê sang ly A mà <u>không được tạo thành cà phê sữa</u>.
+      </p>
+
+      <!-- Visual cups -->
+      <div class="cups-visual" id="cupsVisual">
+        <div class="cup-item">
+          <div class="cup-label">A</div>
+          <div class="cup" id="cupA"><div class="cup-liquid" id="liqA" style="background:#FFFDE7;"></div></div>
+          <div class="cup-name" id="nameA">Sữa 🥛</div>
+        </div>
+        <div class="cup-item">
+          <div class="cup-label">C</div>
+          <div class="cup" id="cupC"><div class="cup-liquid" id="liqC" style="height:0%;"></div></div>
+          <div class="cup-name" id="nameC">Trống</div>
+        </div>
+        <div class="cup-item">
+          <div class="cup-label">B</div>
+          <div class="cup" id="cupB"><div class="cup-liquid" id="liqB" style="background:#4E342E;"></div></div>
+          <div class="cup-name" id="nameB">Cà phê ☕</div>
+        </div>
+      </div>
+      <div class="cup-step-info" id="cupStepInfo">👆 Nhấn "Bước tiếp" để xem từng bước thuật toán</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <button class="cup-step-btn" id="btnCupPrev" onclick="cupStep(-1)" disabled>◀ Bước trước</button>
+        <button class="cup-step-btn" id="btnCupNext" onclick="cupStep(1)">Bước tiếp ▶</button>
+        <button class="cup-step-btn" onclick="resetCups()" style="background:linear-gradient(135deg,#546E7A,#78909C);">🔄 Làm lại</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(4)">◀ Quay lại</button>
+    <span class="slide-counter">5 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(6)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 6: QUIZ LY SỮA ════════════════ -->
+<div class="slide" id="slide-6">
+  <div class="section-badge">📌 Phần 3 – Kiểm tra hiểu bài</div>
+  <div class="quiz-card">
+    <div class="quiz-header">❓ Câu hỏi 4 / 5</div>
+    <div class="quiz-body">
+      <div class="quiz-question">Trong bài toán đổi sữa – cà phê, vì sao cần dùng thêm một ly C trống?</div>
+      <div class="options">
+        <button class="option-btn" onclick="answer(this,'q4',false,'A')">
+          <span class="opt-icon">A</span> Vì ly A và ly B quá nhỏ
+        </button>
+        <button class="option-btn" onclick="answer(this,'q4',true,'B')">
+          <span class="opt-icon">B</span> Để tránh trộn lẫn sữa và cà phê khi chuyển đổi
+        </button>
+        <button class="option-btn" onclick="answer(this,'q4',false,'C')">
+          <span class="opt-icon">C</span> Để đựng thêm cà phê sữa mới
+        </button>
+        <button class="option-btn" onclick="answer(this,'q4',false,'D')">
+          <span class="opt-icon">D</span> Vì thuật toán yêu cầu 3 ly
+        </button>
+      </div>
+      <div class="feedback" id="fb-q4"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(5)">◀ Quay lại</button>
+    <span class="slide-counter">6 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(7)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 7: LẬP TRÌNH ════════════════ -->
+<div class="slide" id="slide-7">
+  <div class="section-badge">📌 Phần 4 – Thuật toán & Chương trình máy tính</div>
+  <div class="card">
+    <div class="card-header">💻 Lập Trình là gì?</div>
+    <div class="card-body">
+      <div class="steps">
+        <div class="step-item highlight">
+          <div class="step-num">?</div>
+          <div class="step-text">Máy tính <strong>không thể hiểu</strong> trực tiếp ngôn ngữ con người nói hoặc viết thông thường.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">→</div>
+          <div class="step-text">Để máy tính thực hiện yêu cầu, ta cần viết <strong>Chương trình máy tính</strong> bằng ngôn ngữ lập trình.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">💡</div>
+          <div class="step-text"><strong>Chương trình máy tính</strong> là bảng mô tả thuật toán cho máy tính bằng ngôn ngữ lập trình.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;background:linear-gradient(135deg,#1A237E,#283593);border-radius:14px;padding:18px;color:white;">
+        <div style="font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;margin-bottom:12px;">⚙️ Ví dụ: Chương trình giúp Alex xén lông 2 chú cừu (Minecraft)</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:0.82rem;font-weight:700;">
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;">▶ Bước 1: move forward (Đi tới)</div>
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;">▶ Bước 2: move forward (Đi tới)</div>
+          <div style="background:rgba(255,200,0,0.25);border-radius:8px;padding:7px 12px;">✂️ Bước 3: shear (Xén lông)</div>
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;">↪ Bước 4: turn right (Rẽ phải)</div>
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;">▶ Bước 5: move forward (Đi tới)</div>
+          <div style="background:rgba(255,200,0,0.25);border-radius:8px;padding:7px 12px;">✂️ Bước 6: shear (Xén lông)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(6)">◀ Quay lại</button>
+    <span class="slide-counter">7 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(8)">Tiếp theo ▶</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 8: QUIZ CUỐI ════════════════ -->
+<div class="slide" id="slide-8">
+  <div class="section-badge">📌 Phần 4 – Kiểm tra cuối</div>
+  <div class="card">
+    <div class="card-header">🐑 Phân tích chương trình Alex</div>
+    <div class="card-body">
+      <p style="font-size:0.88rem;font-weight:700;color:var(--muted);margin-bottom:14px;line-height:1.6;">Trong chương trình giúp Alex xén lông cừu (Minecraft):</p>
+      <div style="background:linear-gradient(135deg,#E8EAF6,#E3F2FD);border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--primary-dark);line-height:2;">
+          <div>📥 <strong>Đầu vào:</strong> Các chú cừu</div>
+          <div>📤 <strong>Đầu ra:</strong> Lông cừu</div>
+          <div>🏁 <strong>Kết thúc khi:</strong> Xén hết lông cả 2 chú cừu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">❓ Câu hỏi 5 / 5 – Câu hỏi tổng kết</div>
+    <div class="quiz-body">
+      <div class="quiz-question">Điều nào sau đây đúng về thuật toán?</div>
+      <div class="options">
+        <button class="option-btn" onclick="answer(this,'q5',false,'A')">
+          <span class="opt-icon">A</span> Thuật toán chỉ dùng được trong toán học
+        </button>
+        <button class="option-btn" onclick="answer(this,'q5',false,'B')">
+          <span class="opt-icon">B</span> Thuật toán không cần điều kiện kết thúc
+        </button>
+        <button class="option-btn" onclick="answer(this,'q5',true,'C')">
+          <span class="opt-icon">C</span> Thuật toán phải mô tả rõ từng bước, đầu vào, đầu ra và điều kiện kết thúc
+        </button>
+        <button class="option-btn" onclick="answer(this,'q5',false,'D')">
+          <span class="opt-icon">D</span> Máy tính có thể hiểu ngay ngôn ngữ con người
+        </button>
+      </div>
+      <div class="feedback" id="fb-q5"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-nav btn-prev" onclick="goSlide(7)">◀ Quay lại</button>
+    <span class="slide-counter">8 / 9</span>
+    <button class="btn-nav btn-next" onclick="goSlide(9)">Xem kết quả 🏆</button>
+  </div>
+</div>
+
+<!-- ════════════════ SLIDE 9: KẾT QUẢ ════════════════ -->
+<div class="slide" id="slide-9">
+  <div class="final-card">
+    <span class="final-emoji" id="finalEmoji">🏆</span>
+    <div class="final-title">Hoàn thành bài học!</div>
+    <div class="final-score" id="finalScore">0 điểm</div>
+    <div class="final-msg" id="finalMsg">Bạn đã hoàn thành Bài 1: Khái Niệm Lập Trình</div>
+
+    <!-- STATS -->
+    <div class="final-grid">
+      <div class="final-stat">
+        <div class="final-stat-num" id="statCorrect">0</div>
+        <div class="final-stat-lbl">Câu đúng</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num" id="statTotal">5</div>
+        <div class="final-stat-lbl">Tổng câu</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num" id="statPct">0%</div>
+        <div class="final-stat-lbl">Tỉ lệ đúng</div>
+      </div>
+    </div>
+
+    <!-- NÚT GỬI ĐIỂM – đặt TRƯỚC summary để luôn thấy ngay -->
+    <div id="submitStatus" style="display:none;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2px solid #6ee7b7;border-radius:14px;padding:12px 18px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:1.3rem;margin-bottom:4px;">✅</div>
+      <div style="font-size:.88rem;font-weight:800;color:#065f46;">Điểm đã được lưu thành công!</div>
+      <div id="submitDetail" style="font-size:.76rem;color:#047857;margin-top:3px;"></div>
+    </div>
+    <button id="btnSubmit" class="btn-restart" onclick="submitScore()" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 16px rgba(16,185,129,.4);margin-bottom:12px;width:100%;font-size:1.05rem;">
+      ✅ Hoàn thành &amp; Gửi điểm
+    </button>
+    <button class="btn-restart" onclick="restart()" style="background:linear-gradient(135deg,#64748b,#475569);box-shadow:0 4px 14px rgba(100,116,139,.3);width:100%;margin-bottom:18px;">🔄 Học lại từ đầu</button>
+
+    <!-- Tóm tắt kiến thức -->
+    <div style="background:#F8FBFF;border:2px solid var(--border);border-radius:16px;padding:14px 18px;text-align:left;">
+      <div style="font-weight:800;font-size:0.85rem;color:var(--primary);margin-bottom:8px;">📚 Tóm tắt kiến thức đã học:</div>
+      <div style="font-size:0.81rem;font-weight:700;color:var(--muted);line-height:1.9;">
+        ✅ Thuật toán là quy trình từng bước để giải quyết bài toán<br>
+        ✅ Bài toán cần xác định rõ đầu vào và đầu ra<br>
+        ✅ Thuật toán phải có điều kiện kết thúc rõ ràng<br>
+        ✅ Chương trình máy tính = mô tả thuật toán bằng ngôn ngữ lập trình
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:14px;text-align:center;">
+    <span class="slide-counter" style="display:inline-block;">9 / 9</span>
+  </div>
+</div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+<!-- CONFETTI -->
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+const TOTAL_SLIDES = 9;
+let currentSlide = 1;
+let score = 0;
+let answered = {};  // tracks which questions answered
+let correctCount = 0;
+
+// ── NAVIGATION ──
+function goSlide(n) {
+  document.getElementById('slide-' + currentSlide).classList.remove('active');
+  currentSlide = n;
+  document.getElementById('slide-' + n).classList.add('active');
+  updateProgress();
+  window.scrollTo({top: 0, behavior: 'instant'});
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  if (n === 9) showFinal();
+}
+
+function updateProgress() {
+  const pct = ((currentSlide - 1) / (TOTAL_SLIDES - 1)) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ── SCORE ──
+function addScore(pts) {
+  score += pts;
+  const el = document.getElementById('scoreVal');
+  el.textContent = score;
+  el.style.transform = 'scale(1.4)';
+  setTimeout(() => el.style.transform = 'scale(1)', 300);
+}
+
+// ── ANSWER (MCQ) ──
+function answer(btn, qid, correct, label) {
+  if (answered[qid]) return;
+  answered[qid] = true;
+  correctCount += correct ? 1 : 0;
+
+  const container = btn.closest('.options');
+  container.querySelectorAll('.option-btn').forEach(b => {
+    b.disabled = true;
+    const isCorrectBtn = b.onclick.toString().includes(',true,');
+    if (isCorrectBtn) b.classList.add('correct');
+  });
+
+  const fb = document.getElementById('fb-' + qid);
+  if (correct) {
+    btn.classList.add('correct');
+    btn.querySelector('.opt-icon').textContent = '✓';
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '🎉 <strong>Chính xác!</strong> ' + getFeedback(qid, true);
+    addScore(20);
+    showToast('🎉 Đúng rồi! +20 điểm', 'ok');
+    if (correctCount >= 3) launchConfetti();
+  } else {
+    btn.classList.add('wrong');
+    btn.querySelector('.opt-icon').textContent = '✗';
+    fb.className = 'feedback err show';
+    fb.innerHTML = '❌ <strong>Chưa đúng.</strong> ' + getFeedback(qid, false);
+    showToast('❌ Chưa đúng, thử lại nhé!', 'err');
+  }
+}
+
+function getFeedback(qid, correct) {
+  const fb = {
+    q1: { ok: 'Bài thơ mô tả cách tính diện tích hình thang.', err: 'Đáp án đúng là: Tính diện tích hình thang.' },
+    q4: { ok: 'Ly C đóng vai trò trung gian để tránh pha trộn hai chất lỏng.', err: 'Ly C trống được dùng làm trung gian để không pha trộn sữa và cà phê.' },
+    q5: { ok: 'Đúng! Thuật toán phải đủ: đầu vào, các bước rõ ràng, đầu ra và điều kiện kết thúc.', err: 'Thuật toán cần mô tả rõ ràng đầu vào, đầu ra, từng bước thực hiện và điều kiện kết thúc.' }
+  };
+  return fb[qid] ? (correct ? fb[qid].ok : fb[qid].err) : '';
+}
+
+// ── SORT QUIZ ──
+let dragSrc = null;
+function initSort() {
+  document.querySelectorAll('.sort-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrc = item;
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      item.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (dragSrc && dragSrc !== item) {
+        const container = item.parentNode;
+        const items = [...container.querySelectorAll('.sort-item')];
+        const srcIdx = items.indexOf(dragSrc);
+        const tgtIdx = items.indexOf(item);
+        if (srcIdx < tgtIdx) container.insertBefore(dragSrc, item.nextSibling);
+        else container.insertBefore(dragSrc, item);
+      }
+    });
+  });
+  updateSortNums();
+}
+
+function updateSortNums() {
+  document.querySelectorAll('#sortQ2 .sort-item').forEach((el, i) => {
+    el.querySelector('.sort-num').textContent = i + 1;
+  });
+}
+
+function checkSort() {
+  if (answered['q2']) return;
+  const items = [...document.querySelectorAll('#sortQ2 .sort-item')];
+  const orders = items.map(i => parseInt(i.dataset.order));
+  const correct = orders[0] === 1 && orders[1] === 2 && orders[2] === 3;
+  answered['q2'] = true;
+  correctCount += correct ? 1 : 0;
+
+  const fb = document.getElementById('fb-q2');
+  if (correct) {
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '🎉 <strong>Xuất sắc!</strong> Thứ tự các bước hoàn toàn chính xác!';
+    addScore(20);
+    showToast('🎉 Sắp xếp đúng! +20 điểm', 'ok');
+    items.forEach(i => i.style.borderColor = 'var(--success-light)');
+  } else {
+    fb.className = 'feedback err show';
+    fb.innerHTML = '❌ <strong>Thứ tự chưa đúng.</strong> Đúng phải là: (1) Cộng 2 đáy → (2) Nhân chiều cao → (3) Chia đôi';
+    items.forEach(i => i.style.borderColor = 'var(--danger-light)');
+    showToast('❌ Thứ tự chưa đúng!', 'err');
+  }
+}
+
+// ── FILL BLANK ──
+function checkFill() {
+  if (answered['q3']) return;
+  const f1 = document.getElementById('fill1').value.trim().toLowerCase();
+  const f2 = document.getElementById('fill2').value.trim().toLowerCase();
+  const ok1 = f1.includes('bài toán') || f1.includes('bai toan');
+  const ok2 = f2.includes('thuật toán') || f2.includes('thuat toan') || f2.includes('thuật') || f2.includes('algorithm');
+  const fb = document.getElementById('fb-q3');
+  answered['q3'] = true;
+
+  if (ok1 && ok2) {
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '🎉 <strong>Chính xác!</strong> Bạn đã nhớ đúng định nghĩa Bài toán và Thuật toán!';
+    document.getElementById('fill1').classList.add('correct-ans');
+    document.getElementById('fill2').classList.add('correct-ans');
+    addScore(20);
+    correctCount++;
+    showToast('🎉 Điền đúng! +20 điểm', 'ok');
+  } else {
+    fb.className = 'feedback err show';
+    let hint = '❌ <strong>Chưa đúng.</strong> ';
+    if (!ok1) hint += 'Câu 1: Đáp án là <em>"Bài toán"</em>. ';
+    if (!ok2) hint += 'Câu 2: Đáp án là <em>"Thuật toán"</em>.';
+    fb.innerHTML = hint;
+    if (!ok1) document.getElementById('fill1').classList.add('wrong-ans');
+    if (!ok2) document.getElementById('fill2').classList.add('wrong-ans');
+    showToast('❌ Hãy xem lại định nghĩa!', 'err');
+  }
+}
+
+// ── CUPS SIMULATION ──
+let cupStepIdx = 0;
+const cupSteps = [
+  {
+    info: '🔰 Trạng thái ban đầu: Ly A chứa sữa, Ly B chứa cà phê, Ly C trống.',
+    A: { color: '#FFFDE7', h: '65%', name: 'Sữa 🥛' },
+    C: { color: 'transparent', h: '0%', name: 'Trống' },
+    B: { color: '#4E342E', h: '65%', name: 'Cà phê ☕' }
+  },
+  {
+    info: '📌 Bước 1: Lấy thêm một ly C trống để làm trung gian.',
+    A: { color: '#FFFDE7', h: '65%', name: 'Sữa 🥛' },
+    C: { color: 'transparent', h: '0%', name: 'Trống ✅' },
+    B: { color: '#4E342E', h: '65%', name: 'Cà phê ☕' }
+  },
+  {
+    info: '📌 Bước 2: Đổ sữa từ ly A → ly C đang trống.',
+    A: { color: 'transparent', h: '0%', name: 'Trống' },
+    C: { color: '#FFFDE7', h: '65%', name: 'Sữa 🥛' },
+    B: { color: '#4E342E', h: '65%', name: 'Cà phê ☕' }
+  },
+  {
+    info: '📌 Bước 3: Đổ cà phê từ ly B → ly A đang trống.',
+    A: { color: '#4E342E', h: '65%', name: 'Cà phê ☕' },
+    C: { color: '#FFFDE7', h: '65%', name: 'Sữa 🥛' },
+    B: { color: 'transparent', h: '0%', name: 'Trống' }
+  },
+  {
+    info: '✅ Bước 4: Đổ sữa từ ly C → ly B đang trống. Hoàn thành!',
+    A: { color: '#4E342E', h: '65%', name: 'Cà phê ☕' },
+    C: { color: 'transparent', h: '0%', name: 'Trống' },
+    B: { color: '#FFFDE7', h: '65%', name: 'Sữa 🥛' }
+  }
+];
+
+function applyCupStep(idx) {
+  const s = cupSteps[idx];
+  ['A','B','C'].forEach(cup => {
+    const liq = document.getElementById('liq' + cup);
+    const name = document.getElementById('name' + cup);
+    liq.style.background = s[cup].color;
+    liq.style.height = s[cup].h;
+    name.textContent = s[cup].name;
+  });
+  document.getElementById('cupStepInfo').textContent = s.info;
+  document.getElementById('btnCupPrev').disabled = idx === 0;
+  document.getElementById('btnCupNext').disabled = idx === cupSteps.length - 1;
+}
+
+function cupStep(dir) {
+  cupStepIdx = Math.max(0, Math.min(cupSteps.length - 1, cupStepIdx + dir));
+  applyCupStep(cupStepIdx);
+}
+
+function resetCups() {
+  cupStepIdx = 0;
+  applyCupStep(0);
+}
+
+// ── FINAL ──
+function showFinal() {
+  const pct = Math.round((correctCount / 5) * 100);
+  document.getElementById('finalScore').textContent = score + ' điểm';
+  document.getElementById('statCorrect').textContent = correctCount;
+  document.getElementById('statPct').textContent = pct + '%';
+  const emoji = pct === 100 ? '🏆' : pct >= 60 ? '🌟' : '💪';
+  const msg = pct === 100 ? 'Xuất sắc! Bạn đã trả lời đúng tất cả câu hỏi!' :
+              pct >= 60  ? 'Tốt lắm! Hãy ôn lại những phần chưa đúng nhé.' :
+                           'Cố gắng lên! Hãy xem lại bài học và thử lại.';
+  document.getElementById('finalEmoji').textContent = emoji;
+  document.getElementById('finalMsg').textContent = msg;
+  if (pct >= 60) launchConfetti();
+}
+
+function restart() {
+  score = 0; answered = {}; correctCount = 0; cupStepIdx = 0;
+  document.getElementById('scoreVal').textContent = '0';
+  document.querySelectorAll('.option-btn').forEach(b => {
+    b.disabled = false;
+    b.classList.remove('correct','wrong');
+    b.querySelector('.opt-icon').textContent = b.querySelector('.opt-icon').textContent.replace('✓','').replace('✗','') || b.getAttribute('data-lbl');
+  });
+  document.querySelectorAll('.feedback').forEach(f => { f.className = 'feedback'; f.innerHTML = ''; });
+  document.querySelectorAll('.fill-blank').forEach(f => { f.value = ''; f.classList.remove('correct-ans','wrong-ans'); });
+  document.querySelectorAll('.sort-item').forEach(i => { i.style.borderColor = ''; i.style.opacity = '1'; });
+  applyCupStep(0);
+  goSlide(1);
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icons = { ok: '✅', err: '❌', info: 'ℹ️' };
+  document.getElementById('toastIcon').textContent = icons[type] || '';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  const colors = ['#1565C0','#42A5F5','#FF6F00','#FFB300','#2E7D32','#66BB6A','#C62828','#E91E63'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    p.style.animationDelay = Math.random() * 1 + 's';
+    p.style.width = p.style.height = (Math.random() * 8 + 6) + 'px';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    wrap.appendChild(p);
+  }
+  setTimeout(() => wrap.innerHTML = '', 4000);
+}
+
+// ── INIT ──
+initSort();
+applyCupStep(0);
+updateProgress();
+
+/* ══════════════════════════════════════════
+   KHO HỌC LIỆU – Score Integration (API version)
+══════════════════════════════════════════ */
+var _studentName    = 'Học sinh';
+var _lessonTitle    = 'Bài 1: Khái Niệm Lập Trình';
+var _lessonId       = 'bai1-khai-niem-lap-trinh';
+var _scoreSubmitted = false;
+
+/* Lấy token từ parent window's localStorage */
+function _getToken() {
+  try { return window.parent.localStorage.getItem('khl_token') || localStorage.getItem('khl_token'); } catch(e) { return null; }
+}
+
+/* Lấy API_URL từ parent */
+function _getApiUrl() {
+  try {
+    if (typeof window.parent.API_URL !== 'undefined') return window.parent.API_URL;
+  } catch(e) {}
+  return 'https://kho-hoc-lieu-backend.onrender.com'; // fallback
+}
+
+/* ── Nhận tên học sinh từ parent ── */
+window.addEventListener('message', function(e) {
+  if (!e.data) return;
+  if (e.data.type === 'KHL_SET_STUDENT') {
+    if (e.data.studentName) _studentName = e.data.studentName;
+    if (e.data.lessonTitle) _lessonTitle  = e.data.lessonTitle;
+    if (e.data.lessonId)    _lessonId     = e.data.lessonId;
+  }
+});
+
+/* ── Gửi điểm lên API ── */
+async function _submitToAPI(payload) {
+  var token = _getToken();
+  if (!token) return false;
+  try {
+    var res = await fetch(_getApiUrl() + '/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        lesson_id:    _lessonId,
+        lesson_title: _lessonTitle,
+        score:   payload.score,
+        correct: payload.correct,
+        total:   payload.total
+      })
+    });
+    return res.ok;
+  } catch(e) { return false; }
+}
+
+/* ── Nút "Hoàn thành & Gửi điểm" ── */
+function submitScore() {
+  if (_scoreSubmitted) return;
+  _scoreSubmitted = true;
+
+  var payload = { score: score, correct: correctCount, total: 5 };
+
+  /* 1. Gửi lên API server */
+  _submitToAPI(payload).then(function(saved) {
+    /* 2. Cập nhật UI */
+    var btnEl    = document.getElementById('btnSubmit');
+    var statusEl = document.getElementById('submitStatus');
+    var detailEl = document.getElementById('submitDetail');
+    if (btnEl) {
+      btnEl.disabled         = true;
+      btnEl.textContent      = saved ? '✅ Đã lưu điểm thành công!' : '✅ Đã gửi điểm!';
+      btnEl.style.opacity    = '0.7';
+      btnEl.style.cursor     = 'default';
+      btnEl.style.background = 'linear-gradient(135deg,#6ee7b7,#34d399)';
+    }
+    if (statusEl) statusEl.style.display = 'block';
+    if (detailEl) detailEl.textContent   =
+      _studentName + ' · ' + payload.score + ' điểm · ' + payload.correct + '/5 câu đúng';
+  });
+
+  /* 3. Gửi postMessage lên parent để hiện overlay xác nhận */
+  var msg = {
+    type: 'KHL_SCORE',
+    payload: { studentName: _studentName, lessonTitle: _lessonTitle, lessonId: _lessonId,
+               score: payload.score, correct: payload.correct, total: payload.total }
+  };
+  try { window.parent.postMessage(msg, '*'); } catch(e){}
+}
+
+/* ── Reset khi làm lại ── */
+var _origShowFinal = showFinal;
+showFinal = function() {
+  _origShowFinal();
+  _scoreSubmitted = false;
+  var btnEl    = document.getElementById('btnSubmit');
+  var statusEl = document.getElementById('submitStatus');
+  if (btnEl) {
+    btnEl.disabled         = false;
+    btnEl.textContent      = '✅ Hoàn thành & Gửi điểm';
+    btnEl.style.opacity    = '1';
+    btnEl.style.cursor     = 'pointer';
+    btnEl.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+  }
+  if (statusEl) statusEl.style.display = 'none';
+  /* Scroll xuống để thấy nút */
+  setTimeout(function() {
+    var btn = document.getElementById('btnSubmit');
+    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
+};
+
+</script>
+</body>
+</html>

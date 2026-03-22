@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bảng Điểm Học Sinh – Kho Học Liệu</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue-deep:#071e3d;--blue-navy:#0a2540;--blue-mid:#1a4a8a;
+  --blue-bright:#2c7be5;--blue-pale:#dbeafe;--blue-frost:#eff6ff;
+  --text-dark:#071e3d;--text-mid:#2d5282;--text-muted:#718096;
+  --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+  --purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Be Vietnam Pro',sans-serif;background:#f0f4ff;color:var(--text-dark);min-height:100vh;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--blue-deep),var(--blue-mid),var(--blue-bright));padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(10,37,64,.25);}
+.hdr{max-width:1200px;margin:auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-ico{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo h1{font-family:'Playfair Display',serif;font-size:1.2rem;color:white;}
+.logo p{font-size:.65rem;color:rgba(255,255,255,.55);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.hdr-btn{padding:7px 14px;border-radius:16px;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:white;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.hdr-btn:hover{background:rgba(255,255,255,.22);}
+.hdr-btn.danger{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.2);color:#fca5a5;}
+.hdr-btn.export{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.2);color:#6ee7b7;}
+
+/* MAIN */
+main{max-width:1200px;margin:auto;padding:28px 28px 60px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(44,123,229,.08);border:1.5px solid var(--blue-pale);text-align:center;}
+.stat-num{font-size:2rem;font-weight:900;color:var(--blue-bright);line-height:1;}
+.stat-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:5px;}
+.stat-card.s-green .stat-num{color:#059669;}
+.stat-card.s-purple .stat-num{color:var(--purple);}
+.stat-card.s-amber .stat-num{color:#d97706;}
+.stat-card.s-red .stat-num{color:#dc2626;}
+
+/* FILTER BAR */
+.filter-bar{background:white;border-radius:14px;padding:14px 18px;box-shadow:0 2px 12px rgba(44,123,229,.08);border:1.5px solid var(--blue-pale);display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+.filter-bar input,.filter-bar select{padding:8px 12px;border:2px solid var(--blue-pale);border-radius:9px;font-family:inherit;font-size:.84rem;color:var(--text-dark);background:var(--blue-frost);outline:none;transition:border-color .2s;}
+.filter-bar input{flex:1;min-width:180px;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--blue-bright);}
+.filter-count{font-size:.78rem;font-weight:700;color:var(--text-muted);margin-left:auto;white-space:nowrap;}
+
+/* TABS */
+.tabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap;}
+.tab-btn{padding:7px 16px;border-radius:16px;font-size:.8rem;font-weight:700;cursor:pointer;border:2px solid var(--blue-pale);background:white;color:var(--text-mid);transition:all .2s;display:flex;align-items:center;gap:5px;}
+.tab-btn.active{background:var(--blue-bright);color:white;border-color:var(--blue-bright);box-shadow:0 3px 10px rgba(44,123,229,.25);}
+.tab-btn:not(.active):hover{border-color:var(--blue-bright);color:var(--blue-bright);}
+
+/* TABLE */
+.tbl-wrap{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(44,123,229,.08);border:1.5px solid var(--blue-pale);}
+.tbl-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--blue-pale);}
+.tbl-title{font-size:.85rem;font-weight:800;color:var(--text-dark);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:linear-gradient(135deg,var(--blue-deep),var(--blue-mid));}
+thead th{padding:11px 14px;text-align:left;font-size:.74rem;font-weight:800;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #f0f4ff;transition:background .15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#f8faff;}
+tbody td{padding:11px 14px;font-size:.83rem;vertical-align:middle;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:.73rem;font-weight:800;}
+.pill-gold{background:#fef3c7;color:#92400e;}
+.pill-ok{background:#d1fae5;color:#065f46;}
+.pill-warn{background:#fef3c7;color:#92400e;}
+.pill-fail{background:#fee2e2;color:#991b1b;}
+.pill-gray{background:#f1f5f9;color:#64748b;}
+.pill-purple{background:#ede9fe;color:#5b21b6;}
+
+/* CHART BARS */
+.bar-section{background:white;border-radius:14px;padding:20px 22px;box-shadow:0 2px 12px rgba(44,123,229,.08);border:1.5px solid var(--blue-pale);}
+.bar-section h3{font-size:.88rem;font-weight:800;color:var(--text-mid);margin-bottom:16px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-name{width:140px;font-size:.78rem;font-weight:700;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.bar-bg{flex:1;background:#f0f4ff;border-radius:8px;height:24px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue-bright),#5b9cf6);border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .5s ease;min-width:28px;}
+.bar-val{font-size:.72rem;font-weight:800;color:white;}
+
+/* EMPTY */
+.empty-box{text-align:center;padding:48px 20px;color:var(--text-muted);}
+.empty-ico{font-size:2.8rem;margin-bottom:10px;opacity:.4;}
+.empty-box p{font-size:.88rem;font-weight:600;}
+.empty-box small{font-size:.75rem;opacity:.7;display:block;margin-top:4px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 17px;border-radius:11px;font-size:.82rem;font-weight:700;z-index:999;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:320px;box-shadow:0 8px 24px rgba(7,30,61,.2);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{background:var(--blue-deep);color:white;}
+.toast.err{background:#dc2626;color:white;}
+
+/* REALTIME badge */
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.15);border:1.5px solid rgba(16,185,129,.3);border-radius:20px;padding:4px 10px;font-size:.72rem;font-weight:700;color:#059669;}
+.live-dot{width:7px;height:7px;background:#10b981;border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* PASS/FAIL PIN */
+.pass-pin{display:inline-block;background:#d1fae5;color:#065f46;border-radius:6px;padding:2px 7px;font-size:.7rem;font-weight:800;}
+.fail-pin{display:inline-block;background:#fee2e2;color:#991b1b;border-radius:6px;padding:2px 7px;font-size:.7rem;font-weight:800;}
+
+@media(max-width:640px){
+  main{padding:14px 13px 40px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .hdr{padding:10px 14px;}
+  .filter-bar{gap:7px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-ico">📊</div>
+      <div>
+        <h1>Bảng Điểm Học Sinh</h1>
+        <p>Kho Học Liệu · Theo dõi kết quả</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="live-badge" onclick="renderAll()" style="cursor:pointer;" title="Nhấn để làm mới"><div class="live-dot"></div> Cập nhật tự động</div>
+      <button class="hdr-btn" onclick="renderAll()" style="border-color:rgba(255,255,255,.3);">🔄 Làm mới</button>
+      <button class="hdr-btn export" onclick="exportCSV()">⬇️ Xuất CSV</button>
+      <button class="hdr-btn danger" onclick="clearAllScores()">🗑️ Xóa tất cả</button>
+      <a href="kho-hoc-lieu.html" class="hdr-btn" style="text-decoration:none;">← Về Kho Học Liệu</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">Tổng lượt làm</div></div>
+    <div class="stat-card s-green"><div class="stat-num" id="sStu">0</div><div class="stat-lbl">Học sinh</div></div>
+    <div class="stat-card s-purple"><div class="stat-num" id="sLesson">0</div><div class="stat-lbl">Bài học</div></div>
+    <div class="stat-card s-amber"><div class="stat-num" id="sAvg">0</div><div class="stat-lbl">Điểm trung bình</div></div>
+    <div class="stat-card s-red"><div class="stat-num" id="sRetry">0</div><div class="stat-lbl">Lần làm lại</div></div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-bar">
+    <input type="text" id="filterSearch" placeholder="🔍 Tìm học sinh, bài học..." oninput="renderAll()"/>
+    <select id="filterStu" onchange="renderAll()"><option value="">👤 Tất cả học sinh</option></select>
+    <select id="filterLesson" onchange="renderAll()"><option value="">📖 Tất cả bài học</option></select>
+    <select id="filterSort" onchange="renderAll()">
+      <option value="newest">Mới nhất trước</option>
+      <option value="score_desc">Điểm cao nhất</option>
+      <option value="score_asc">Điểm thấp nhất</option>
+      <option value="name">Tên học sinh</option>
+    </select>
+    <span class="filter-count" id="filterCount">0 kết quả</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-all" onclick="switchTab('all')">📋 Tất cả lượt làm</button>
+    <button class="tab-btn" id="tab-stu" onclick="switchTab('stu')">👤 Theo học sinh</button>
+    <button class="tab-btn" id="tab-lesson" onclick="switchTab('lesson')">📖 Theo bài học</button>
+    <button class="tab-btn" id="tab-chart" onclick="switchTab('chart')">📈 Biểu đồ</button>
+  </div>
+
+  <!-- PANEL: ALL -->
+  <div id="panel-all">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Học sinh</th><th>Bài học</th><th>Điểm</th><th>Câu đúng</th><th>Kết quả</th><th>Số lần làm</th><th>Thời gian</th>
+        </tr></thead>
+        <tbody id="tbAll"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: BY STUDENT -->
+  <div id="panel-stu" style="display:none">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Học sinh</th><th>Tổng lượt</th><th>Điểm TB</th><th>Điểm cao nhất</th><th>Điểm thấp nhất</th><th>Bài đã làm</th><th>Lần làm lại</th>
+        </tr></thead>
+        <tbody id="tbStu"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: BY LESSON -->
+  <div id="panel-lesson" style="display:none">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Bài học</th><th>Lượt làm</th><th>Điểm TB</th><th>Điểm cao nhất</th><th>Số học sinh</th><th>Lần làm lại</th>
+        </tr></thead>
+        <tbody id="tbLesson"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: CHART -->
+  <div id="panel-chart" style="display:none">
+    <div class="bar-section">
+      <h3>📊 Điểm trung bình theo học sinh</h3>
+      <div id="chartBars"></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   API CONFIG – Kết nối Backend + Supabase Realtime
+══════════════════════════════════════════════════════════ */
+const API_URL      = ''; // dùng đường dẫn tương đối
+const SUPABASE_URL = 'https://kldxbxisxqgfbhtocqab.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZHhieGlzeHFnZmJodG9jcWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMzgwNzAsImV4cCI6MjA4ODgxNDA3MH0.DzMI_5h7Qi02wUYKZqE5eKzq2oRPXAYvfn9NVk84LO8';
+
+function getToken() { return localStorage.getItem('khl_token'); }
+
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_URL + path, { ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  const json = await res.json();
+  if (!res.ok) throw json;
+  return json;
+}
+
+/* ── Supabase Realtime: nhận điểm mới ngay lập tức ── */
+function initRealtime() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return; // skip nếu chưa cấu hình
+  if (typeof supabase === 'undefined') return;
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  sb.channel('scores-realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scores' },
+      payload => {
+        console.log('⚡ Điểm mới:', payload.new);
+        loadAndRender(); // tự reload từ API
+      })
+    .subscribe();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const DB_KEY  = 'khl_scores';
+const SES_KEY = 'khl_sessions';
+
+// Kiểm tra token — nếu chưa đăng nhập, hiện thông báo
+if (!localStorage.getItem('khl_token')) {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;
+                  background:#0d2137;font-family:Nunito,sans-serif;">
+        <div style="background:white;border-radius:20px;padding:40px;text-align:center;max-width:360px;">
+          <div style="font-size:3rem;margin-bottom:12px;">🔐</div>
+          <h2 style="color:#071e3d;margin-bottom:8px;">Chưa đăng nhập</h2>
+          <p style="color:#64748b;margin-bottom:20px;">Vui lòng đăng nhập với tài khoản admin để xem bảng điểm.</p>
+          <a href="kho-hoc-lieu.html" style="background:#2c7be5;color:white;padding:12px 24px;
+             border-radius:12px;text-decoration:none;font-weight:700;display:inline-block;">
+            ← Quay về đăng nhập
+          </a>
+        </div>
+      </div>`;
+  });
+}
+
+let _scoresCache = []; // cache từ API
+
+/* Chuyển đổi field từ API (snake_case) sang camelCase cho frontend */
+function mapScore(r) {
+  return {
+    id:          r.id,
+    studentName: r.student_name || r.studentName || 'Ẩn danh',
+    lessonTitle: r.lesson_title || r.lessonTitle || 'Bài học',
+    lessonId:    r.lesson_id    || r.lessonId    || '',
+    score:       r.score        || 0,
+    correct:     r.correct      || 0,
+    total:       r.total        || 5,
+    pct:         r.pct          || 0,
+    retryCount:  r.retry_count  || r.retryCount  || 1,
+    timestamp:   r.submitted_at ? new Date(r.submitted_at).getTime() : (r.timestamp || 0),
+  };
+}
+
+async function loadAndRender() {
+  try {
+    const raw = await apiFetch('/api/scores');
+    console.log('[DEBUG] Raw API scores:', raw && raw[0]); // log bản ghi đầu tiên
+    _scoresCache = (raw || []).map(mapScore);
+    console.log('[DEBUG] Mapped scores:', _scoresCache && _scoresCache[0]);
+    renderAll();
+  } catch(e) {
+    console.warn('Lỗi tải điểm:', e.error || e.message);
+    _scoresCache = [];
+    renderAll();
+  }
+}
+
+function dbLoad()  { return _scoresCache; }
+function sesLoad() { return {}; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+let curTab = 'all';
+
+function switchTab(t) {
+  curTab = t;
+  ['all','stu','lesson','chart'].forEach(id => {
+    document.getElementById('panel-'+id).style.display = id === t ? 'block' : 'none';
+    document.getElementById('tab-'+id).classList.toggle('active', id === t);
+  });
+  renderAll();
+}
+
+/* ── FILTER HELPERS ── */
+function getFiltered() {
+  let records = dbLoad();
+  const q = document.getElementById('filterSearch').value.toLowerCase();
+  const stu = document.getElementById('filterStu').value;
+  const lesson = document.getElementById('filterLesson').value;
+  const sort = document.getElementById('filterSort').value;
+  if (q) records = records.filter(r => r.studentName.toLowerCase().includes(q) || r.lessonTitle.toLowerCase().includes(q));
+  if (stu) records = records.filter(r => r.studentName === stu);
+  if (lesson) records = records.filter(r => r.lessonTitle === lesson);
+  if (sort === 'newest') records.sort((a,b) => b.timestamp - a.timestamp);
+  else if (sort === 'score_desc') records.sort((a,b) => b.score - a.score);
+  else if (sort === 'score_asc') records.sort((a,b) => a.score - b.score);
+  else if (sort === 'name') records.sort((a,b) => a.studentName.localeCompare(b.studentName));
+  return records;
+}
+
+function pill(pct) {
+  if (pct >= 80) return `<span class="pill pill-gold">🏆 Xuất sắc</span>`;
+  if (pct >= 60) return `<span class="pill pill-ok">✅ Đạt</span>`;
+  if (pct >= 40) return `<span class="pill pill-warn">⚠️ Trung bình</span>`;
+  return `<span class="pill pill-fail">❌ Chưa đạt</span>`;
+}
+
+/* ── UPDATE STATS & FILTERS ── */
+function updateStats() {
+  const all = dbLoad();
+  const sessions = sesLoad();
+  const students = [...new Set(all.map(r => r.studentName))];
+  const lessons  = [...new Set(all.map(r => r.lessonTitle))];
+  const avg = all.length ? Math.round(all.reduce((s,r) => s+r.score, 0) / all.length) : 0;
+  const retries = Object.values(sessions).reduce((s,v) => s + (v > 1 ? v - 1 : 0), 0);
+  document.getElementById('sTotal').textContent = all.length;
+  document.getElementById('sStu').textContent   = students.length;
+  document.getElementById('sLesson').textContent = lessons.length;
+  document.getElementById('sAvg').textContent   = avg;
+  document.getElementById('sRetry').textContent = retries;
+
+  // Update filter dropdowns
+  const stuSel = document.getElementById('filterStu');
+  const curStu = stuSel.value;
+  stuSel.innerHTML = '<option value="">👤 Tất cả học sinh</option>' +
+    students.map(s => `<option value="${esc(s)}" ${s===curStu?'selected':''}>${esc(s)}</option>`).join('');
+
+  const lsnSel = document.getElementById('filterLesson');
+  const curLsn = lsnSel.value;
+  lsnSel.innerHTML = '<option value="">📖 Tất cả bài học</option>' +
+    lessons.map(l => `<option value="${esc(l)}" ${l===curLsn?'selected':''}>${esc(l)}</option>`).join('');
+}
+
+/* ── RENDER ALL ── */
+function renderAll() {
+  updateStats();
+  if (curTab === 'all') renderTableAll();
+  else if (curTab === 'stu') renderTableStu();
+  else if (curTab === 'lesson') renderTableLesson();
+  else if (curTab === 'chart') renderChart();
+}
+
+function renderTableAll() {
+  const records = getFiltered();
+  document.getElementById('filterCount').textContent = records.length + ' kết quả';
+  const tbody = document.getElementById('tbAll');
+  if (!records.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-box"><div class="empty-ico">📭</div><p>Chưa có dữ liệu điểm số nào.</p><small>Học sinh cần mở bài học → nhấn 🎬 Video tương tác → làm bài → nhấn <strong>"✅ Hoàn thành & Gửi điểm"</strong> để điểm được ghi nhận tại đây.</small></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = records.map((r, i) => {
+    const dt = new Date(r.timestamp);
+    const dtStr = dt.toLocaleDateString('vi-VN') + ' ' + dt.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+    const pct = r.pct || (r.total ? Math.round(r.correct/r.total*100) : 0);
+    const nameInitial = (r.studentName||'?').charAt(0).toUpperCase();
+    const avatarColor = ['#2c7be5','#059669','#d97706','#7c3aed','#db2777'][r.studentName.length % 5];
+    return `<tr>
+      <td style="color:var(--text-muted);font-weight:700;font-size:.75rem;">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:${avatarColor};color:white;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${nameInitial}</div>
+          <strong>${esc(r.studentName)}</strong>
+        </div>
+      </td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.lessonTitle)}">📖 ${esc(r.lessonTitle)}</td>
+      <td><span class="pill pill-purple">⭐ ${r.score}</span></td>
+      <td style="font-weight:700;">${r.correct}/${r.total} <span style="color:var(--text-muted);font-size:.72rem;">(${pct}%)</span></td>
+      <td>${pill(pct)}</td>
+      <td><span class="pill pill-gray">🔄 Lần ${r.retryCount||1}</span></td>
+      <td style="color:var(--text-muted);font-size:.74rem;white-space:nowrap;">${dtStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTableStu() {
+  const records = getFiltered();
+  document.getElementById('filterCount').textContent = records.length + ' lượt';
+  const map = {};
+  records.forEach(r => {
+    if (!map[r.studentName]) map[r.studentName] = {name:r.studentName,count:0,total:0,max:0,min:999,lessons:new Set(),retry:0};
+    const m = map[r.studentName];
+    m.count++; m.total += r.score; m.max = Math.max(m.max, r.score); m.min = Math.min(m.min, r.score);
+    m.lessons.add(r.lessonTitle);
+    m.retry += (r.retryCount > 1 ? r.retryCount - 1 : 0);
+  });
+  const list = Object.values(map).sort((a,b) => (b.total/b.count) - (a.total/a.count));
+  const tbody = document.getElementById('tbStu');
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-box"><div class="empty-ico">👥</div><p>Chưa có dữ liệu học sinh.</p></div></td></tr>`; return; }
+  tbody.innerHTML = list.map(s => {
+    const avg = Math.round(s.total / s.count);
+    const nameInitial = (s.name||'?').charAt(0).toUpperCase();
+    const avatarColor = ['#2c7be5','#059669','#d97706','#7c3aed','#db2777'][s.name.length % 5];
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:${avatarColor};color:white;font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${nameInitial}</div>
+          <strong>${esc(s.name)}</strong>
+        </div>
+      </td>
+      <td><span class="pill pill-gray">${s.count} lượt</span></td>
+      <td><span class="pill pill-purple">⭐ ${avg}</span></td>
+      <td><span class="pill pill-gold">🏆 ${s.max}</span></td>
+      <td><span class="pill pill-fail">📉 ${s.min === 999 ? 0 : s.min}</span></td>
+      <td style="font-weight:700;">${s.lessons.size} bài</td>
+      <td><span class="pill pill-gray">🔄 ${s.retry}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTableLesson() {
+  const records = getFiltered();
+  document.getElementById('filterCount').textContent = records.length + ' lượt';
+  const map = {};
+  records.forEach(r => {
+    if (!map[r.lessonTitle]) map[r.lessonTitle] = {title:r.lessonTitle,count:0,total:0,max:0,students:new Set(),retry:0};
+    const m = map[r.lessonTitle];
+    m.count++; m.total += r.score; m.max = Math.max(m.max, r.score);
+    m.students.add(r.studentName);
+    m.retry += (r.retryCount > 1 ? r.retryCount - 1 : 0);
+  });
+  const list = Object.values(map).sort((a,b) => b.count - a.count);
+  const tbody = document.getElementById('tbLesson');
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-box"><div class="empty-ico">📖</div><p>Chưa có dữ liệu bài học.</p></div></td></tr>`; return; }
+  tbody.innerHTML = list.map(l => {
+    const avg = Math.round(l.total / l.count);
+    return `<tr>
+      <td style="font-weight:800;">📖 ${esc(l.title)}</td>
+      <td><span class="pill pill-gray">${l.count} lượt</span></td>
+      <td><span class="pill pill-purple">⭐ ${avg}</span></td>
+      <td><span class="pill pill-gold">🏆 ${l.max}</span></td>
+      <td style="font-weight:700;">${l.students.size} em</td>
+      <td><span class="pill pill-gray">🔄 ${l.retry}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart() {
+  const records = dbLoad();
+  const map = {};
+  records.forEach(r => {
+    if (!map[r.studentName]) map[r.studentName] = {name:r.studentName, total:0, count:0};
+    map[r.studentName].total += r.score;
+    map[r.studentName].count++;
+  });
+  const list = Object.values(map).sort((a,b) => (b.total/b.count)-(a.total/a.count)).slice(0,15);
+  const wrap = document.getElementById('chartBars');
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty-box"><div class="empty-ico">📈</div><p>Chưa có dữ liệu để hiển thị biểu đồ.</p></div>`;
+    return;
+  }
+  const maxVal = Math.max(...list.map(s => Math.round(s.total/s.count)));
+  wrap.innerHTML = list.map(s => {
+    const avg = Math.round(s.total / s.count);
+    const pct = maxVal ? Math.round((avg / maxVal) * 100) : 0;
+    return `<div class="bar-row">
+      <div class="bar-name" title="${esc(s.name)}">👤 ${esc(s.name)}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.max(pct,8)}%"><span class="bar-val">${avg}</span></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  const records = dbLoad();
+  if (!records.length) { toast('⚠️ Không có dữ liệu để xuất!', 'err'); return; }
+  const header = ['STT','Học sinh','Bài học','Điểm','Câu đúng','Tổng câu','Tỉ lệ%','Lần làm','Thời gian'];
+  const rows = records.map((r,i) => [
+    i+1,
+    '"'+r.studentName.replace(/"/g,'""')+'"',
+    '"'+r.lessonTitle.replace(/"/g,'""')+'"',
+    r.score, r.correct, r.total, r.pct||0,
+    r.retryCount||1,
+    '"'+new Date(r.timestamp).toLocaleString('vi-VN')+'"'
+  ]);
+  const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'bangdiem_' + Date.now() + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+  toast('⬇️ Đã xuất file CSV!');
+}
+
+/* ── CLEAR ── */
+function clearAllScores() {
+  if (!confirm('Xóa toàn bộ dữ liệu điểm số? Hành động này KHÔNG thể hoàn tác!')) return;
+  localStorage.removeItem(DB_KEY);
+  localStorage.removeItem(SES_KEY);
+  renderAll();
+  toast('🗑️ Đã xóa toàn bộ điểm số!', 'err');
+}
+
+/* ── REAL-TIME: Lắng nghe localStorage thay đổi từ tab khác ── */
+// storage event fires khi tab KHÁC ghi vào localStorage
+/* storage event: không cần khi dùng API + Realtime */
+;
+
+/* ── Auto refresh mỗi 3 giây (backup cho same-tab) ── */
+let _lastCount = 0;
+/* ── INIT: Load từ API ── */
+loadAndRender().then(() => initRealtime());
+</script>
+</body>
+</html>
