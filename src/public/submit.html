@@ -63,6 +63,20 @@ header{background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 60%
 .editor-actions{margin-left:auto;display:flex;gap:8px;}
 .btn{padding:9px 18px;border-radius:10px;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:7px;}
 .btn-submit{background:linear-gradient(135deg,var(--blue-bright),var(--blue-mid));color:white;box-shadow:0 4px 14px rgba(44,123,229,.3);}
+.btn-run{background:linear-gradient(135deg,#10b981,#059669);color:white;box-shadow:0 4px 14px rgba(16,185,129,.3);}
+.btn-run:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.4);}
+.btn-run:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.run-box{margin-top:14px;border-radius:12px;overflow:hidden;border:1.5px solid #6ee7b7;}
+.run-box-hdr{background:linear-gradient(135deg,#059669,#10b981);padding:10px 16px;color:white;font-weight:700;font-size:.85rem;display:flex;align-items:center;gap:8px;}
+.run-input-wrap{padding:12px 14px;background:#f0fdf4;border-bottom:1.5px solid #6ee7b7;}
+.run-input-lbl{font-size:.75rem;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.run-input-area{width:100%;padding:9px 12px;border:1.5px solid #6ee7b7;border-radius:8px;font-family:'Courier New',monospace;font-size:.85rem;color:#065f46;background:white;outline:none;resize:vertical;min-height:60px;}
+.run-input-area:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(16,185,129,.1);}
+.run-output-wrap{padding:12px 14px;background:#f0fdf4;}
+.run-output-lbl{font-size:.75rem;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.run-output-val{font-family:'Courier New',monospace;font-size:.85rem;background:white;border:1.5px solid #6ee7b7;border-radius:8px;padding:9px 12px;min-height:50px;white-space:pre-wrap;color:#065f46;}
+.run-output-val.err{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.run-output-val.loading{color:#6ee7b7;font-style:italic;}
 .btn-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(44,123,229,.4);}
 .btn-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;}
 .btn-sec{background:white;color:var(--blue-mid);border:2px solid var(--blue-pale);}
@@ -275,6 +289,9 @@ header{background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 60%
           </select>
           <div class="editor-actions">
             <button class="btn btn-sec" onclick="resetCode()">🔄 Reset</button>
+            <button id="btnRun" class="btn btn-run" onclick="runCode()">
+              <span id="runLabel">▶ Chạy thử</span>
+            </button>
             <button id="btnSubmit" class="btn btn-submit" onclick="submitCode()">
               <span id="submitLabel">🚀 Nộp bài</span>
             </button>
@@ -282,6 +299,19 @@ header{background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-mid) 60%
         </div>
         <div id="editorWrap">
           <textarea id="codeArea"></textarea>
+        </div>
+
+        <!-- Run Box -->
+        <div id="runBox" class="run-box" style="display:none;">
+          <div class="run-box-hdr">▶ Kết quả chạy thử</div>
+          <div class="run-input-wrap">
+            <div class="run-input-lbl">📥 Input (nhập tay)</div>
+            <textarea id="runInput" class="run-input-area" placeholder="Nhập input tại đây..."></textarea>
+          </div>
+          <div class="run-output-wrap">
+            <div class="run-output-lbl">📤 Output</div>
+            <div id="runOutput" class="run-output-val">Chưa chạy...</div>
+          </div>
         </div>
       </div>
     </div>
@@ -534,6 +564,86 @@ function onLangChange() {
   const modeMap = { python:'python', javascript:'javascript', c:'text/x-csrc', cpp:'text/x-c++src' };
   editor.setOption('mode', modeMap[lang] || 'python');
   editor.setValue(TEMPLATES[lang] || '');
+}
+
+
+// ════════════════════════════════════════════════════
+// CHẠY THỬ — gọi Judge Server với input tùy chỉnh
+// ════════════════════════════════════════════════════
+async function runCode() {
+  if (!JUDGE_URL) {
+    showToast('⚠️ Bạn chưa nhập URL Judge Server (ngrok) ở trên!', 'err');
+    document.getElementById('judgeUrlInput').focus();
+    return;
+  }
+
+  const source_code = editor.getValue().trim();
+  if (!source_code) { showToast('Code không được để trống!', 'err'); return; }
+
+  const language = document.getElementById('langSel').value;
+
+  if (!['c', 'cpp'].includes(language)) {
+    showToast('⚠️ Chạy thử hiện chỉ hỗ trợ C và C++!', 'err');
+    return;
+  }
+
+  const input = document.getElementById('runInput').value;
+
+  const btn = document.getElementById('btnRun');
+  const runOutput = document.getElementById('runOutput');
+  const runBox = document.getElementById('runBox');
+
+  btn.disabled = true;
+  document.getElementById('runLabel').innerHTML = '<span class="spinner"></span> Đang chạy...';
+  runBox.style.display = '';
+  runOutput.className = 'run-output-val loading';
+  runOutput.textContent = '⏳ Đang chạy...';
+
+  try {
+    const judgeRes = await fetch(JUDGE_URL + '/judge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({
+        code: source_code,
+        language,
+        testcases: [{ input, expected: '', is_sample: true, weight: 1 }]
+      }),
+      signal: AbortSignal.timeout(15000)
+    });
+
+    if (!judgeRes.ok) throw new Error('Judge Server lỗi: ' + judgeRes.status);
+    const data = await judgeRes.json();
+
+    if (data.status === 'Compile Error') {
+      runOutput.className = 'run-output-val err';
+      runOutput.textContent = '🔴 Compile Error:\n' + (data.detail || '');
+    } else {
+      const r = data.results?.[0];
+      if (!r) throw new Error('Không nhận được kết quả');
+      if (r.status === 'Runtime Error') {
+        runOutput.className = 'run-output-val err';
+        runOutput.textContent = '⚡ Runtime Error:\n' + (r.detail || '');
+      } else if (r.status === 'Time Limit Exceeded') {
+        runOutput.className = 'run-output-val err';
+        runOutput.textContent = '⏱ Time Limit Exceeded';
+      } else {
+        runOutput.className = 'run-output-val';
+        runOutput.textContent = r.actual || '(không có output)';
+      }
+    }
+  } catch(e) {
+    let msg = e.message || 'Lỗi không xác định';
+    if (msg.includes('timeout') || msg.includes('abort')) msg = 'Judge Server không phản hồi (timeout). Kiểm tra ngrok đang chạy.';
+    if (msg.includes('Failed to fetch')) msg = 'Không kết nối được Judge Server.';
+    runOutput.className = 'run-output-val err';
+    runOutput.textContent = '❌ ' + msg;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('runLabel').textContent = '▶ Chạy thử';
+  }
 }
 
 function resetCode() {
